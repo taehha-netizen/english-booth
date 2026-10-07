@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forbidden Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/common.css">
+<style>
+  .level-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; max-width: 760px; margin: 24px auto; }
+  .level { flex-direction: column; min-height: 200px; font-size: 1.6rem; font-weight: 800; border-width: 3px; }
+  .level .e { font-size: 4rem; }
+  .clue { font-size: 1.9rem; font-weight: 800; line-height: 1.35; margin: 6px 0; }
+  .clue .dont { color: var(--bad); }
+  .room { display: grid; gap: 14px; margin: 18px auto; max-width: 900px; }
+  .room.n4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .room.n6 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .spot { position: relative; height: 190px; padding: 0; overflow: visible; flex-direction: column; justify-content: flex-end; border-width: 3px; background: linear-gradient(180deg, #2c3468, #1a1f45); }
+  .spot .found { position: absolute; bottom: 34px; left: 0; right: 0; font-size: 3.6rem; opacity: 0; transition: opacity .3s; }
+  .spot .cover { font-size: 5rem; transition: transform .5s cubic-bezier(.3,1.6,.5,1); position: relative; z-index: 2; margin-bottom: 26px; }
+  .spot .name { position: absolute; bottom: 6px; left: 0; right: 0; font-size: 1rem; color: var(--muted); }
+  .spot.open .cover { transform: translateY(-70px) rotate(-14deg); }
+  .spot.open .found { opacity: 1; }
+  .spot.right { border-color: var(--ok); box-shadow: 0 0 26px #4fd18b88; }
+  .spot.wrong { border-color: var(--muted); opacity: .7; }
+  .spot.danger { border-color: var(--bad); box-shadow: 0 0 30px #ff6b6baa; }
+  .target { font-size: 2.1rem; font-weight: 800; margin: 10px 0; }
+  .target span { padding: 0 4px; border-radius: 6px; }
+  .target .hit { color: var(--ok); }
+  .target .miss { color: var(--bad); text-decoration: underline wavy; }
+  .ask { font-size: 2rem; font-weight: 800; }
+  .lives { font-size: 1.5rem; }
+  .teacher { margin-top: 18px; padding-top: 12px; border-top: 1px dashed var(--line); }
+  .teacher .label { font-size: .8rem; color: var(--muted); margin-bottom: 6px; }
+  .alarm { position: fixed; inset: 0; background: #ff000044; pointer-events: none; animation: flash .3s 3; z-index: 50; }
+  @keyframes flash { 50% { background: transparent; } }
+  @media (max-width: 760px) {
+    .room.n4, .room.n6 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .spot { height: 150px; } .spot .cover { font-size: 3.6rem; } .clue { font-size: 1.35rem; } .target { font-size: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <h1 class="title-font">🗝️ Forbidden Room</h1>
+  <div class="tools">
+    <a class="btn btn-small" href="index.html">🏠 처음으로</a>
+    <button class="btn-small" onclick="Magic.toggleFullscreen()">⛶ 전체화면</button>
+  </div>
+</div>
+
+<main class="wrap center" id="app"></main>
+
+<script src="assets/common.js"></script>
+<script>
+// 물건을 숨길 장소 (prep = 위치 표현)
+const SPOTS = [
+  { k: 'book',  e: '📚', prep: 'under' },
+  { k: 'box',   e: '📦', prep: 'in' },
+  { k: 'bag',   e: '🎒', prep: 'in' },
+  { k: 'hat',   e: '🎩', prep: 'under' },
+  { k: 'chair', e: '🪑', prep: 'under' },
+  { k: 'bed',   e: '🛏️', prep: 'under' },
+];
+// 찾을 물건
+const ITEMS = [
+  { k: 'key',  e: '🔑' },
+  { k: 'wand', e: '🪄' },
+  { k: 'ring', e: '💍' },
+  { k: 'coin', e: '🪙' },
+  { k: 'egg',  e: '🥚' },
+  { k: 'frog', e: '🐸' },
+];
+// 만지면 안 되는 곳에 숨어 있는 것
+const DANGERS = [
+  { k: 'spider', e: '🕷️' },
+  { k: 'snake',  e: '🐍' },
+  { k: 'ghost',  e: '👻' },
+];
+const MISSIONS = 3;
+const PASS = 0.7; // 문장 말하기 통과 기준 (70%)
+
+const app = document.getElementById('app');
+let level, missions, m, mode, turn = 0;
+
+function home() {
+  app.innerHTML = `
+    <div class="card pop" style="margin-top:24px">
+      <div style="font-size:6rem">🚪🗝️</div>
+      <h2 class="title-font" style="font-size:2.2rem;margin:6px 0;color:var(--gold)">The Forbidden Room</h2>
+      <p style="font-size:1.4rem;margin:4px 0">Listen carefully. Find the magic things.<br><b style="color:var(--bad)">But don't touch the dangerous things!</b></p>
+      <p class="ko">영어 단서를 잘 듣고 물건을 찾은 뒤, 어디에 있었는지 영어 문장으로 말해요. (미션 ${MISSIONS}개)</p>
+      <div class="level-grid">
+        <button class="level" data-l="beginner"><span class="e">📜</span>Beginner<span class="ko">단서 글자 보기 (3~4학년)</span></button>
+        <button class="level" data-l="advanced"><span class="e">👂</span>Advanced<span class="ko">듣기만으로 도전 (5~6학년)</span></button>
+      </div>
+    </div>`;
+  Magic.micNotice(app);
+  app.querySelectorAll('.level').forEach(b => b.onclick = () => start(b.dataset.l));
+  Magic.speak("Welcome to the Forbidden Room. Listen carefully. But don't touch the dangerous things!");
+}
+
+function makeMissions() {
+  const n = level === 'beginner' ? 4 : 6;
+  const items = Magic.shuffle(ITEMS);
+  return Array.from({ length: MISSIONS }, (_, i) => {
+    const spots = Magic.shuffle(SPOTS).slice(0, n);
+    const target = spots[0], forbidden = spots[1];
+    return {
+      spots: Magic.shuffle(spots),
+      target, forbidden,
+      item: items[i % items.length],
+      danger: DANGERS[Math.floor(Math.random() * DANGERS.length)],
+    };
+  });
+}
+
+function start(l) {
+  level = l; missions = makeMissions(); m = 0;
+  Magic.sfx.magic();
+  findStep();
+}
+
+function clueText(M) {
+  return {
+    find: `Find the ${M.item.k}.`,
+    where: `The ${M.item.k} is ${M.target.prep} the ${M.target.k}.`,
+    dont: `Don't touch the ${M.forbidden.k}!`,
+  };
+}
+
+function findStep() {
+  mode = 'find'; turn++;
+  const M = missions[m];
+  const c = clueText(M);
+  const showText = level === 'beginner';
+  app.innerHTML = `
+    <div class="pill" style="margin-top:6px">Mission ${m + 1} / ${MISSIONS}</div>
+    <div class="clue ${showText ? '' : 'hidden'}" id="clue">
+      🔎 ${c.find} ${c.where}<br><span class="dont">🚫 ${c.dont}</span>
+    </div>
+    <div id="clueHidden" class="${showText ? 'hidden' : ''}" style="font-size:1.6rem;margin:10px 0">👂 Listen to the clue!</div>
+    <div class="row">
+      <button class="btn-small" id="again">🔊 Listen again</button>
+      ${showText ? '' : '<button class="btn-small" id="show">📜 Show clue</button>'}
+    </div>
+    <div class="room n${M.spots.length}">
+      ${M.spots.map(s => `
+        <button class="spot" data-k="${s.k}">
+          <span class="found">${s === M.target ? M.item.e : s === M.forbidden ? M.danger.e : '💨'}</span>
+          <span class="cover">${s.e}</span>
+          <span class="name">${s.k}</span>
+        </button>`).join('')}
+    </div>
+    <div class="feedback" id="fb"></div>
+    <div class="teacher">
+      <div class="label">선생님용</div>
+      <div class="row"><button class="btn-small" id="skip">➜ 정답 보여주기</button></div>
+    </div>`;
+  const read = () => Magic.speak(`${c.find} ${c.where} ${c.dont}`, { rate: level === 'beginner' ? 0.8 : 0.9 });
+  read();
+  document.getElementById('again').onclick = read;
+  const show = document.getElementById('show');
+  if (show) show.onclick = () => { document.getElementById('clue').classList.remove('hidden'); document.getElementById('clueHidden').classList.add('hidden'); };
+  document.getElementById('skip').onclick = () => tapSpot(M.target.k);
+  app.querySelectorAll('.spot').forEach(b => b.onclick = () => tapSpot(b.dataset.k));
+}
+
+function tapSpot(k) {
+  if (mode !== 'find') return;
+  const M = missions[m];
+  const el = app.querySelector(`.spot[data-k="${k}"]`);
+  const fb = document.getElementById('fb');
+  if (el.classList.contains('open')) return;
+  el.classList.add('open');
+  if (k === M.target.k) {
+    mode = 'found';
+    el.classList.add('right');
+    fb.className = 'feedback ok'; fb.textContent = `✨ You found the ${M.item.k}! ✨`;
+    Magic.sfx.ok(); Magic.sparkle(el);
+    Magic.speak(`You found the ${M.item.k}!`).then(() => setTimeout(sayStep, 500));
+  } else if (k === M.forbidden.k) {
+    el.classList.add('danger');
+    fb.className = 'feedback bad'; fb.textContent = `😱 Oh no! A ${M.danger.k}! Don't touch the ${k}!`;
+    Magic.sfx.alarm();
+    const a = document.createElement('div'); a.className = 'alarm'; document.body.appendChild(a); setTimeout(() => a.remove(), 1000);
+    Magic.shake(app.querySelector('.room'));
+    Magic.inc('forbidden_touched');
+    Magic.speak(`Oh no! A ${M.danger.k}! Don't touch the ${k}!`);
+  } else {
+    el.classList.add('wrong');
+    fb.className = 'feedback bad'; fb.textContent = 'Not here! Try again.';
+    Magic.sfx.bad();
+    Magic.speak('Not here! Try again.');
+  }
+}
+
+function sayStep() {
+  mode = 'say'; turn++;
+  const M = missions[m];
+  const target = clueText(M).where;
+  const blanks = level === 'advanced';
+  const shown = blanks
+    ? `The <u>&nbsp;?&nbsp;</u> is <u>&nbsp;?&nbsp;</u> the <u>&nbsp;?&nbsp;</u>.`
+    : target;
+  app.innerHTML = `
+    <div class="pill" style="margin-top:6px">Mission ${m + 1} / ${MISSIONS}</div>
+    <div class="row" style="font-size:5rem;margin:8px 0">${M.item.e}<span style="font-size:2.4rem">${M.target.prep === 'in' ? '➡️' : '⬇️'}</span>${M.target.e}</div>
+    <div class="ask">Where is the ${M.item.k}? <button class="btn-small btn-ghost" id="ask">🔊</button></div>
+    <div class="ko">물건이 어디에 있었는지 문장으로 말해 보세요.</div>
+    <div class="target" id="target">${shown}</div>
+    <div class="row"><button class="mic" id="mic" aria-label="말하기">🎤</button></div>
+    <div class="heard" id="heard">🎤를 누르고 문장으로 말해 보세요.</div>
+    <div class="feedback" id="fb"></div>
+    <div class="row"><button class="btn-small" id="model">🔊 Listen to the answer</button></div>
+    <div class="teacher">
+      <div class="label">선생님용</div>
+      <div class="row"><button class="btn-small btn-ok" id="pass">✔ 통과</button></div>
+    </div>`;
+  const ask = () => Magic.speak(`Where is the ${M.item.k}?`);
+  ask();
+  document.getElementById('ask').onclick = ask;
+  document.getElementById('model').onclick = () => { document.getElementById('target').textContent = target; Magic.speak(target, { rate: 0.75 }); };
+  document.getElementById('pass').onclick = () => passed(target);
+  const mic = document.getElementById('mic');
+  if (!Magic.canListen) mic.disabled = true;
+  let busy = false;
+  mic.onclick = async () => {
+    if (busy) return;
+    busy = true;
+    const my = turn;
+    const heard = document.getElementById('heard');
+    const fb = document.getElementById('fb');
+    mic.classList.add('listening'); heard.textContent = 'Listening... 🎧'; fb.textContent = '';
+    try {
+      const said = await Magic.listen({ timeout: 8000 });
+      if (my !== turn) return;
+      mic.classList.remove('listening'); busy = false;
+      heard.innerHTML = said.length ? `I heard: <b>${said[0]}</b>` : '잘 안 들렸어요. 조금 더 크게!';
+      if (!said.length) return;
+      const r = Magic.scoreSentence(said, target, [M.item.k, M.target.prep, M.target.k]);
+      document.getElementById('target').innerHTML = r.words.map((w, i) => `<span class="${r.hit[i] ? 'hit' : 'miss'}">${w}</span>`).join(' ');
+      if (r.score >= PASS) passed(target);
+      else {
+        fb.className = 'feedback bad'; fb.textContent = 'Almost! Try again.';
+        Magic.sfx.bad();
+      }
+    } catch (e) {
+      mic.classList.remove('listening'); busy = false;
+      heard.textContent = '마이크 오류: 선생님이 ✔ 통과로 진행해 주세요.';
+    }
+  };
+}
+
+function passed(target) {
+  if (mode !== 'say') return;
+  mode = 'done'; turn++;
+  Magic.stopListening();
+  document.getElementById('mic').classList.remove('listening');
+  document.getElementById('target').innerHTML = `<span class="hit">${target}</span>`;
+  const fb = document.getElementById('fb');
+  fb.className = 'feedback ok'; fb.textContent = '✨ Perfect! ✨';
+  Magic.sfx.ok(); Magic.sparkle(document.getElementById('target'));
+  Magic.inc('room_missions');
+  Magic.speak(`Perfect! ${target}`).then(() => setTimeout(() => {
+    m++;
+    m < MISSIONS ? findStep() : finish();
+  }, 400));
+}
+
+function finish() {
+  Magic.inc('room_players');
+  app.innerHTML = `
+    <div class="card pop" style="margin-top:24px">
+      <div style="font-size:6rem">🗝️🏆</div>
+      <h2 class="title-font" style="font-size:2.2rem;color:var(--gold);margin:6px 0">Mission Complete!</h2>
+      <p style="font-size:1.4rem">You escaped the Forbidden Room!</p>
+      <p class="ko">마지막 미션 Final Spell(컵 쌓기)로 이동하세요! ➜</p>
+      <div class="row" style="margin-top:14px">
+        <button class="btn-gold btn-big" id="again">🚪 Next Student</button>
+      </div>
+    </div>`;
+  Magic.sfx.magic(); Magic.sparkle(app.querySelector('.card'));
+  Magic.speak('Mission complete! You escaped the Forbidden Room! Now, go to the Final Spell!');
+  document.getElementById('again').onclick = home;
+}
+
+home();
+</script>
+</body>
+</html>

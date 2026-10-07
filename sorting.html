@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sorting Ceremony</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/common.css">
+<style>
+  .q-text { font-size: 2.2rem; font-weight: 800; margin: 8px 0 2px; }
+  .options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: 22px auto; max-width: 820px; }
+  .opt { flex-direction: column; padding: 18px 10px; font-size: 1.5rem; font-weight: 700; min-height: 170px; border-width: 3px; }
+  .opt .e { font-size: 4.2rem; line-height: 1.1; }
+  .opt.chosen { border-color: var(--gold); box-shadow: 0 0 24px #e8c15a88; }
+  .progress { display: flex; gap: 8px; justify-content: center; margin: 6px 0 14px; }
+  .progress span { width: 14px; height: 14px; border-radius: 50%; background: #fff3; }
+  .progress span.on { background: var(--gold); }
+  .hat { font-size: 10rem; display: inline-block; animation: wobble 1.2s ease-in-out infinite; }
+  @keyframes wobble { 0%,100% { transform: rotate(-8deg); } 50% { transform: rotate(8deg) translateY(-8px); } }
+  .house-name { font-size: 3.6rem; font-weight: 800; color: #fff; text-shadow: 0 0 22px var(--house), 0 4px 0 #0008; margin: 6px 0; }
+  .house-banner { background: linear-gradient(180deg, var(--house), #0006); border-radius: 26px; padding: 26px; border: 3px solid #fff4; }
+  .houses { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin: 20px 0; }
+  .house-btn { flex-direction: column; background: linear-gradient(180deg, var(--house), #0007); border: 3px solid #fff3; min-height: 190px; font-weight: 800; font-size: 1.15rem; position: relative; }
+  .house-btn .e { font-size: 3.6rem; }
+  .house-btn.reco { border-color: var(--gold); box-shadow: 0 0 26px #e8c15aaa; }
+  .house-btn .tag { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #2a1d00; font-size: .75rem; padding: 2px 10px; border-radius: 999px; white-space: nowrap; }
+  .trait { font-size: .85rem; font-weight: 600; opacity: .9; }
+  @media (max-width: 760px) { .houses { grid-template-columns: repeat(2, minmax(0, 1fr)); } .house-name { font-size: 2.4rem; } .q-text { font-size: 1.6rem; } .opt { min-height: 140px; } }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <h1 class="title-font">🎩 Sorting Ceremony</h1>
+  <div class="tools">
+    <a class="btn btn-small" href="index.html">🏠 처음으로</a>
+    <button class="btn-small" onclick="Magic.toggleFullscreen()">⛶ 전체화면</button>
+  </div>
+</div>
+
+<main class="wrap center" id="app"></main>
+
+<script src="assets/common.js"></script>
+<script>
+const HOUSES = {
+  gryffindor: { name: 'Gryffindor', e: '🦁', trait: 'Brave', ko: '용감한' },
+  hufflepuff: { name: 'Hufflepuff', e: '🦡', trait: 'Kind', ko: '친절한' },
+  ravenclaw:  { name: 'Ravenclaw',  e: '🦅', trait: 'Smart', ko: '지혜로운' },
+  slytherin:  { name: 'Slytherin',  e: '🐍', trait: 'Ambitious', ko: '야망 있는' },
+};
+
+// 질문: 그림 보고 고르거나 영어로 말하면 선택됨 (say = 인식할 단어)
+const QUESTIONS = [
+  { q: 'Which animal do you like?', ko: '어떤 동물을 좋아하나요?', options: [
+    { e: '🦁', t: 'Lion', say: ['lion', 'lions', 'line'], h: 'gryffindor' },
+    { e: '🦡', t: 'Badger', say: ['badger', 'badgers'], h: 'hufflepuff' },
+    { e: '🦅', t: 'Eagle', say: ['eagle', 'eagles', 'bird'], h: 'ravenclaw' },
+    { e: '🐍', t: 'Snake', say: ['snake', 'snakes', 'snack'], h: 'slytherin' },
+  ]},
+  { q: 'Which color do you like?', ko: '어떤 색을 좋아하나요?', options: [
+    { e: '🔴', t: 'Red', say: ['red', 'read'], h: 'gryffindor' },
+    { e: '🟡', t: 'Yellow', say: ['yellow'], h: 'hufflepuff' },
+    { e: '🔵', t: 'Blue', say: ['blue', 'blew'], h: 'ravenclaw' },
+    { e: '🟢', t: 'Green', say: ['green'], h: 'slytherin' },
+  ]},
+  { q: 'What do you like to do?', ko: '무엇을 하는 걸 좋아하나요?', options: [
+    { e: '⚽', t: 'Play sports', say: ['sports', 'sport', 'play', 'soccer'], h: 'gryffindor' },
+    { e: '🤝', t: 'Help friends', say: ['help', 'friends', 'friend'], h: 'hufflepuff' },
+    { e: '📚', t: 'Read books', say: ['read books', 'books', 'book', 'reading'], h: 'ravenclaw' },
+    { e: '🏆', t: 'Win games', say: ['win', 'games', 'game', 'winning'], h: 'slytherin' },
+  ]},
+  { q: 'I want to be ...', ko: '나는 ___ 사람이 되고 싶어요.', options: [
+    { e: '💪', t: 'Brave', say: ['brave', 'grave'], h: 'gryffindor' },
+    { e: '💛', t: 'Kind', say: ['kind', 'kinda'], h: 'hufflepuff' },
+    { e: '🧠', t: 'Smart', say: ['smart'], h: 'ravenclaw' },
+    { e: '👑', t: 'The best', say: ['best', 'the best'], h: 'slytherin' },
+  ]},
+];
+
+const app = document.getElementById('app');
+let step = 0, score = {}, recommended = null;
+
+function start() {
+  step = 0; score = { gryffindor: 0, hufflepuff: 0, ravenclaw: 0, slytherin: 0 }; recommended = null;
+  app.innerHTML = `
+    <div class="card pop" style="margin-top:30px">
+      <div class="hat">🎩</div>
+      <h2 class="title-font" style="font-size:2.4rem;margin:10px 0;color:var(--gold)">The Sorting Hat</h2>
+      <p style="font-size:1.4rem">Hogwarts has four Houses.<br>Answer my questions, and I will find your House!</p>
+      <p class="ko">호그와트에는 4개의 기숙사가 있어요. 모자의 질문에 답해 보세요!</p>
+      <div class="row" style="margin:18px 0">
+        ${Object.values(HOUSES).map(h => `<span style="font-size:3rem">${h.e}</span>`).join('')}
+      </div>
+      <button class="btn-gold btn-big" id="go">✨ Start</button>
+    </div>`;
+  document.getElementById('go').onclick = () => { Magic.sfx.magic(); askQuestion(); };
+  Magic.speak('Welcome to Hogwarts! Hogwarts has four Houses. Answer my questions, and I will find your House!');
+}
+
+function askQuestion() {
+  const Q = QUESTIONS[step];
+  app.innerHTML = `
+    <div class="progress">${QUESTIONS.map((_, i) => `<span class="${i <= step ? 'on' : ''}"></span>`).join('')}</div>
+    <div class="q-text">${Q.q} <button class="btn-small btn-ghost" id="replay" aria-label="다시 듣기">🔊</button></div>
+    <div class="ko">${Q.ko}</div>
+    <div class="options">
+      ${Q.options.map((o, i) => `<button class="opt" data-i="${i}"><span class="e">${o.e}</span>${o.t}</button>`).join('')}
+    </div>
+    <div class="row">
+      <button class="mic" id="mic" aria-label="말해서 고르기">🎤</button>
+    </div>
+    <div class="ko" style="margin-top:8px">그림을 누르거나, 🎤를 누르고 영어로 말해 보세요.</div>
+    <div class="heard" id="heard"></div>`;
+  Magic.micNotice(app);
+  const read = () => Magic.speak(Q.q + ' ' + Q.options.map(o => o.t).join(', ') + '?');
+  read();
+  document.getElementById('replay').onclick = read;
+  app.querySelectorAll('.opt').forEach(b => b.onclick = () => choose(+b.dataset.i));
+  const mic = document.getElementById('mic');
+  if (!Magic.canListen) mic.disabled = true;
+  mic.onclick = async () => {
+    const heard = document.getElementById('heard');
+    mic.classList.add('listening'); heard.textContent = 'Listening... 🎧';
+    try {
+      const said = await Magic.listen();
+      mic.classList.remove('listening');
+      const idx = Q.options.findIndex(o => Magic.matchWord(said, o.say));
+      heard.innerHTML = said.length ? `I heard: <b>${said[0]}</b>` : '잘 안 들렸어요. 다시 말해 볼까요?';
+      if (idx >= 0) choose(idx);
+      else { Magic.sfx.bad(); Magic.shake(app.querySelector('.options')); }
+    } catch (e) {
+      mic.classList.remove('listening');
+      heard.textContent = '마이크를 사용할 수 없어요. 그림을 눌러 주세요.';
+    }
+  };
+}
+
+function choose(i) {
+  const Q = QUESTIONS[step];
+  const o = Q.options[i];
+  score[o.h]++;
+  const btn = app.querySelector(`.opt[data-i="${i}"]`);
+  btn.classList.add('chosen');
+  app.querySelectorAll('.opt, #mic').forEach(b => b.disabled = true);
+  Magic.sfx.ok(); Magic.sparkle(btn);
+  Magic.speak(o.t + '!');
+  setTimeout(() => { step++; step < QUESTIONS.length ? askQuestion() : thinking(); }, 1100);
+}
+
+function thinking() {
+  const max = Math.max(...Object.values(score));
+  const top = Object.keys(score).filter(k => score[k] === max);
+  recommended = top[Math.floor(Math.random() * top.length)];
+  app.innerHTML = `
+    <div style="margin-top:40px">
+      <div class="hat">🎩</div>
+      <p class="title-font" style="font-size:2rem">Hmm... difficult. Very difficult...</p>
+      <p class="ko">모자가 생각하고 있어요...</p>
+    </div>`;
+  Magic.speak('Hmm... difficult. Very difficult... Let me see...', { rate: 0.75 }).then(() => setTimeout(reveal, 400));
+}
+
+function reveal() {
+  const H = HOUSES[recommended];
+  Magic.inc('reco_' + recommended);
+  app.innerHTML = `
+    <div class="house-banner h-${recommended} pop" style="margin-top:20px">
+      <div style="font-size:7rem">${H.e}</div>
+      <div class="house-name title-font">${H.name.toUpperCase()}!</div>
+      <p style="font-size:1.3rem">You are <b>${H.trait.toLowerCase()}</b>. <span class="ko" style="color:#fffc">${H.ko} 마법사</span></p>
+    </div>
+    <button class="btn-gold btn-big" id="next" style="margin-top:22px">Next ➜ Your Choice</button>`;
+  Magic.sfx.magic(); Magic.sparkle(app.querySelector('.house-banner'));
+  Magic.speak(H.name + '!', { rate: 0.8, pitch: 1.1 });
+  document.getElementById('next').onclick = yourChoice;
+}
+
+function yourChoice() {
+  app.innerHTML = `
+    <h2 class="title-font" style="font-size:2.2rem;margin:16px 0 4px;color:var(--gold)">Your Choice</h2>
+    <p style="font-size:1.4rem;margin:0">Which House do you want to join?</p>
+    <p class="ko">모자의 추천은 ⭐ 표시! 하지만 최종 선택은 여러분이 해요.</p>
+    <div class="houses">
+      ${Object.entries(HOUSES).map(([k, h]) => `
+        <button class="house-btn h-${k} ${k === recommended ? 'reco' : ''}" data-h="${k}">
+          ${k === recommended ? '<span class="tag">⭐ Sorting Hat</span>' : ''}
+          <span class="e">${h.e}</span>${h.name}<span class="trait">${h.trait} · ${h.ko}</span>
+        </button>`).join('')}
+    </div>
+    <div class="row"><button class="mic" id="mic" aria-label="말해서 고르기">🎤</button></div>
+    <div class="ko" style="margin-top:8px">"I want <b>Gryffindor</b>." 처럼 말해도 돼요.</div>
+    <div class="heard" id="heard"></div>`;
+  Magic.speak('Which House do you want to join?');
+  app.querySelectorAll('.house-btn').forEach(b => b.onclick = () => welcome(b.dataset.h));
+  const mic = document.getElementById('mic');
+  if (!Magic.canListen) mic.disabled = true;
+  const SAY = {
+    gryffindor: ['gryffindor', 'griffindor', 'griffin', 'gryffin', 'lion', 'red'],
+    hufflepuff: ['hufflepuff', 'huffle', 'puff', 'badger', 'yellow'],
+    ravenclaw: ['ravenclaw', 'raven', 'claw', 'eagle', 'blue'],
+    slytherin: ['slytherin', 'slithering', 'slither', 'snake', 'green'],
+  };
+  mic.onclick = async () => {
+    const heard = document.getElementById('heard');
+    mic.classList.add('listening'); heard.textContent = 'Listening... 🎧';
+    try {
+      const said = await Magic.listen();
+      mic.classList.remove('listening');
+      heard.innerHTML = said.length ? `I heard: <b>${said[0]}</b>` : '잘 안 들렸어요. 다시 말해 볼까요?';
+      const h = Object.keys(SAY).find(k => Magic.matchWord(said, SAY[k]));
+      if (h) welcome(h); else Magic.sfx.bad();
+    } catch (e) { mic.classList.remove('listening'); heard.textContent = '기숙사를 눌러 주세요.'; }
+  };
+}
+
+function welcome(h) {
+  const H = HOUSES[h];
+  Magic.inc('house_' + h);
+  Magic.inc('sorted');
+  app.innerHTML = `
+    <div class="house-banner h-${h} pop" style="margin-top:20px">
+      <p style="font-size:1.6rem;margin:0">Welcome to</p>
+      <div style="font-size:7rem">${H.e}</div>
+      <div class="house-name title-font">${H.name}!</div>
+      <p class="ko" style="color:#fffc">이제 Spell Challenge로 이동하세요! ➜</p>
+    </div>
+    <div class="row" style="margin-top:22px">
+      <button class="btn-gold btn-big" id="again">🎩 Next Student</button>
+    </div>`;
+  Magic.sfx.magic(); Magic.sparkle(app.querySelector('.house-banner'), [H.e, '✨', '⭐']);
+  Magic.speak('Welcome to ' + H.name + '! Now, go to the Spell Challenge!');
+  document.getElementById('again').onclick = start;
+}
+
+start();
+</script>
+</body>
+</html>

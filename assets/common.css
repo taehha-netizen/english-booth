@@ -1,0 +1,132 @@
+/* Welcome to Hogwarts - 공통 스타일 (태블릿·스탠바이미 화면 기준) */
+:root {
+  --bg: #0f1226;
+  --bg2: #1a1f3d;
+  --card: #232a52;
+  --line: #3a4380;
+  --text: #f4f1e8;
+  --muted: #b8b4c8;
+  --gold: #e8c15a;
+  --ok: #4fd18b;
+  --bad: #ff6b6b;
+  --gryffindor: #ae0001;
+  --slytherin: #1a7a3a;
+  --hufflepuff: #e0a800;
+  --ravenclaw: #1f4fa8;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body { margin: 0; min-height: 100%; }
+
+body {
+  background: radial-gradient(ellipse at top, #2a2f63 0%, var(--bg) 60%) fixed, var(--bg);
+  color: var(--text);
+  font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", system-ui, sans-serif;
+  font-size: 20px;
+  line-height: 1.45;
+  user-select: none;
+  -webkit-user-select: none;
+  overflow-x: hidden;
+}
+
+/* 반짝이는 별 배경 */
+body::before {
+  content: "";
+  position: fixed; inset: 0; pointer-events: none; z-index: -1;
+  background-image:
+    radial-gradient(2px 2px at 10% 20%, #fff8, transparent),
+    radial-gradient(2px 2px at 80% 10%, #fff6, transparent),
+    radial-gradient(1px 1px at 40% 70%, #fff8, transparent),
+    radial-gradient(2px 2px at 65% 45%, #fff5, transparent),
+    radial-gradient(1px 1px at 25% 90%, #fff7, transparent),
+    radial-gradient(1px 1px at 90% 80%, #fff7, transparent);
+  animation: twinkle 4s ease-in-out infinite alternate;
+}
+@keyframes twinkle { from { opacity: .5; } to { opacity: 1; } }
+
+.title-font { font-family: "Cinzel Decorative", "Cinzel", Georgia, serif; letter-spacing: .02em; }
+
+.wrap { max-width: 1100px; margin: 0 auto; padding: 16px; }
+
+/* 상단 바 */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 10px 16px; background: #0008; border-bottom: 1px solid var(--line);
+  position: sticky; top: 0; z-index: 10; backdrop-filter: blur(6px);
+}
+.topbar h1 { margin: 0; font-size: 1.15rem; color: var(--gold); }
+.topbar .tools { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* 버튼 */
+button, .btn {
+  font: inherit; color: var(--text); cursor: pointer;
+  background: var(--card); border: 2px solid var(--line); border-radius: 16px;
+  padding: 12px 20px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  transition: transform .08s, background .2s, border-color .2s;
+}
+button:active, .btn:active { transform: scale(.96); }
+button:disabled { opacity: .45; cursor: default; }
+.btn-gold { background: linear-gradient(180deg, #f5d77a, #c99a2e); color: #2a1d00; border-color: #f5d77a; font-weight: 700; }
+.btn-small { padding: 6px 12px; font-size: .85rem; border-radius: 10px; }
+.btn-big { font-size: 1.5rem; padding: 18px 34px; border-radius: 22px; }
+.btn-ok { border-color: var(--ok); }
+.btn-ghost { background: transparent; }
+
+/* 마이크 버튼 */
+.mic {
+  width: 132px; height: 132px; border-radius: 50%; font-size: 3.4rem;
+  background: radial-gradient(circle at 35% 30%, #ffe9a8, #d29b25 70%);
+  border: 4px solid #fff3; color: #2a1d00; box-shadow: 0 0 30px #e8c15a55;
+}
+.mic.listening { animation: pulse 1s ease-in-out infinite; background: radial-gradient(circle at 35% 30%, #ffb3b3, #d23b3b 70%); }
+@keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 #ff6b6b88; } 50% { box-shadow: 0 0 0 26px #ff6b6b00; } }
+
+.card {
+  background: linear-gradient(180deg, #262e5c, #1c2247);
+  border: 1px solid var(--line); border-radius: 22px; padding: 20px;
+}
+
+.center { text-align: center; }
+.muted { color: var(--muted); }
+.ko { color: var(--muted); font-size: .8em; }
+.hidden { display: none !important; }
+
+.row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; align-items: center; }
+
+.big-emoji { font-size: 9rem; line-height: 1.1; filter: drop-shadow(0 6px 18px #0008); }
+
+.heard { min-height: 1.6em; font-size: 1.1rem; color: var(--muted); }
+.heard b { color: var(--text); }
+
+.feedback { font-size: 2rem; font-weight: 800; min-height: 1.5em; }
+.feedback.ok { color: var(--ok); }
+.feedback.bad { color: var(--bad); }
+
+.pill { display: inline-block; padding: 4px 12px; border-radius: 999px; background: #0006; border: 1px solid var(--line); font-size: .85rem; }
+
+/* 기숙사 색 */
+.h-gryffindor { --house: var(--gryffindor); }
+.h-slytherin { --house: var(--slytherin); }
+.h-hufflepuff { --house: var(--hufflepuff); }
+.h-ravenclaw { --house: var(--ravenclaw); }
+
+/* 반짝 효과 */
+.spark { position: fixed; pointer-events: none; font-size: 2rem; z-index: 99; animation: spark 1s ease-out forwards; }
+@keyframes spark { to { transform: translate(var(--dx), var(--dy)) scale(.3); opacity: 0; } }
+
+.shake { animation: shake .4s; }
+@keyframes shake { 20%,60% { transform: translateX(-10px); } 40%,80% { transform: translateX(10px); } }
+
+.pop { animation: pop .5s ease-out; }
+@keyframes pop { 0% { transform: scale(.4); opacity: 0; } 70% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+
+/* 마이크 미지원 안내 */
+.notice { background: #4a3a10; border: 1px solid var(--gold); color: #ffe9a8; border-radius: 12px; padding: 10px 14px; font-size: .9rem; margin: 10px auto; max-width: 760px; }
+
+@media (max-width: 640px) {
+  body { font-size: 17px; }
+  .big-emoji { font-size: 6.5rem; }
+  .mic { width: 104px; height: 104px; font-size: 2.6rem; }
+  .btn-big { font-size: 1.2rem; padding: 14px 24px; }
+}

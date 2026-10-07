@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Welcome to Hogwarts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/common.css">
+<style>
+  .hero { text-align: center; padding: 28px 0 8px; }
+  .hero h1 { font-size: 3rem; margin: 0; color: var(--gold); text-shadow: 0 0 24px #e8c15a66; }
+  .flow { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin: 14px 0 24px; font-size: .85rem; }
+  .flow span { background: #0006; border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; }
+  .flow span.app { border-color: var(--gold); color: var(--gold); }
+  .apps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+  .app-card { display: flex; flex-direction: column; align-items: flex-start; text-align: left; gap: 6px; padding: 22px; min-height: 200px; border-radius: 22px; border: 2px solid var(--line); background: linear-gradient(160deg, #2b3470, #1a1f45); color: var(--text); text-decoration: none; transition: transform .1s, border-color .2s; }
+  .app-card:hover { border-color: var(--gold); }
+  .app-card:active { transform: scale(.98); }
+  .app-card .e { font-size: 3.4rem; line-height: 1; }
+  .app-card .t { font-size: 1.6rem; font-weight: 800; }
+  .app-card .d { color: var(--muted); font-size: .95rem; }
+  .app-card .n { font-size: .8rem; color: var(--gold); }
+  details.teacher { margin: 28px 0 40px; }
+  details.teacher summary { cursor: pointer; font-weight: 700; padding: 12px 0; color: var(--gold); }
+  .stat-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 10px 0; }
+  .stat { background: #0005; border: 1px solid var(--line); border-radius: 14px; padding: 12px; text-align: center; }
+  .stat b { display: block; font-size: 1.8rem; }
+  .stat small { color: var(--muted); }
+  .houses-bar { display: flex; height: 26px; border-radius: 12px; overflow: hidden; background: #0005; margin: 8px 0 4px; }
+  .houses-bar div { height: 100%; }
+  .settings { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; font-size: .95rem; margin-top: 14px; }
+  .mic-test { font-size: .95rem; color: var(--muted); }
+  @media (max-width: 760px) { .apps { grid-template-columns: 1fr; } .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .hero h1 { font-size: 2rem; } }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <section class="hero">
+    <div style="font-size:4rem">🏰</div>
+    <h1 class="title-font">Welcome to Hogwarts</h1>
+    <p class="muted">마법학교 영어 체험 부스 · Sorting Ceremony + Hogwarts Mission</p>
+  </section>
+
+  <div class="flow">
+    <span>✉️ Invitation</span><span class="app">🎩 Sorting</span><span>🙋 Your Choice</span><span class="app">🪄 Spell</span><span class="app">🗝️ Forbidden Room</span><span class="app">🥤 Final Spell</span><span>🏅 Complete</span><span>📸 Photo Zone</span>
+  </div>
+
+  <section class="apps">
+    <a class="app-card" href="sorting.html">
+      <span class="n">STEP 2 · 태블릿/스탠바이미</span>
+      <span class="e">🎩</span>
+      <span class="t">Sorting Ceremony</span>
+      <span class="d">영어 질문 4개에 답하면 모자가 기숙사를 추천 → 학생이 최종 선택(Your Choice). 그림 터치 또는 영어로 말하기.</span>
+    </a>
+    <a class="app-card" href="spell.html">
+      <span class="n">STEP 3 · 음성 인식</span>
+      <span class="e">🪄</span>
+      <span class="t">Spell Challenge</span>
+      <span class="d">그림을 보고 영어 단어 말하기. Beginner / Advanced 5문제, 힌트·발음 듣기 지원.</span>
+    </a>
+    <a class="app-card" href="forbidden.html">
+      <span class="n">STEP 4 · 듣기 + 문장 말하기</span>
+      <span class="e">🗝️</span>
+      <span class="t">Forbidden Room</span>
+      <span class="d">"The key is under the book. Don't touch the bag!" 단서를 듣고 물건 찾기 → 위치를 문장으로 말하기.</span>
+    </a>
+    <a class="app-card" href="final.html">
+      <span class="n">STEP 5 · 보조 도구</span>
+      <span class="e">🥤</span>
+      <span class="t">Final Spell</span>
+      <span class="d">컵스택 영어 지시문을 크게 보여주고 읽어 줌. 원어민 선생님 부재 시 대체용.</span>
+    </a>
+  </section>
+
+  <details class="teacher card">
+    <summary>👩‍🏫 선생님 메뉴 (참여 현황 · 설정 · 마이크 점검)</summary>
+    <div id="stats"></div>
+    <div class="settings">
+      <label>읽어주기 속도
+        <select id="rate">
+          <option value="0.7">느리게</option>
+          <option value="0.85">보통</option>
+          <option value="1">빠르게</option>
+        </select>
+      </label>
+      <button class="btn-small" id="ttsTest">🔊 소리 점검</button>
+      <button class="btn-small" id="micTest">🎤 마이크 점검</button>
+      <span class="mic-test" id="micResult"></span>
+      <button class="btn-small" onclick="Magic.toggleFullscreen()">⛶ 전체화면</button>
+      <button class="btn-small" id="reset" style="border-color:var(--bad)">🗑 통계 초기화</button>
+    </div>
+    <p class="ko" style="margin-top:12px">※ 통계는 이 기기(브라우저)에만 저장됩니다. 음성 인식은 크롬 + 인터넷 연결이 필요해요.</p>
+  </details>
+</main>
+
+<script src="assets/common.js"></script>
+<script>
+const HOUSE = [
+  ['gryffindor', 'Gryffindor', '🦁', 'var(--gryffindor)'],
+  ['hufflepuff', 'Hufflepuff', '🦡', 'var(--hufflepuff)'],
+  ['ravenclaw', 'Ravenclaw', '🦅', 'var(--ravenclaw)'],
+  ['slytherin', 'Slytherin', '🐍', 'var(--slytherin)'],
+];
+
+function renderStats() {
+  const s = Magic.readStats();
+  const total = HOUSE.reduce((a, h) => a + (s['house_' + h[0]] || 0), 0);
+  document.getElementById('stats').innerHTML = `
+    <div class="stat-grid">
+      <div class="stat"><b>${s.sorted || 0}</b><small>🎩 기숙사 배정</small></div>
+      <div class="stat"><b>${s.spell_players || 0}</b><small>🪄 Spell 완료 (단어 ${s.spells || 0}개)</small></div>
+      <div class="stat"><b>${s.room_players || 0}</b><small>🗝️ Room 완료 (금지 터치 ${s.forbidden_touched || 0})</small></div>
+      <div class="stat"><b>${s.final_players || 0}</b><small>🥤 Final Spell 완료</small></div>
+    </div>
+    <div class="houses-bar">
+      ${total ? HOUSE.map(h => `<div style="width:${(s['house_' + h[0]] || 0) / total * 100}%;background:${h[3]}"></div>`).join('') : ''}
+    </div>
+    <div class="row" style="justify-content:space-between;font-size:.9rem">
+      ${HOUSE.map(h => `<span>${h[2]} ${h[1]} <b>${s['house_' + h[0]] || 0}</b> <span class="muted">(추천 ${s['reco_' + h[0]] || 0})</span></span>`).join('')}
+    </div>`;
+}
+renderStats();
+
+const rate = document.getElementById('rate');
+rate.value = String(Magic.settings.rate);
+rate.onchange = () => { Magic.settings.rate = +rate.value; Magic.saveSettings(); };
+document.getElementById('ttsTest').onclick = () => Magic.speak('Welcome to Hogwarts!');
+document.getElementById('micTest').onclick = async () => {
+  const out = document.getElementById('micResult');
+  if (!Magic.canListen) { out.textContent = '❌ 이 브라우저는 음성 인식 미지원 (크롬 사용 권장)'; return; }
+  out.textContent = '🎧 "Hello" 라고 말해 보세요...';
+  try {
+    const said = await Magic.listen();
+    out.textContent = said.length ? `✅ 인식됨: "${said[0]}"` : '⚠️ 소리가 들리지 않았어요';
+  } catch (e) { out.textContent = '❌ 오류: ' + e.message + ' (마이크 권한 / https 주소 확인)'; }
+};
+document.getElementById('reset').onclick = () => {
+  if (confirm('참여 통계를 모두 지울까요?')) { Magic.resetStats(); renderStats(); }
+};
+</script>
+</body>
+</html>

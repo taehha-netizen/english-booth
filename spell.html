@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spell Challenge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/common.css">
+<style>
+  .level-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; max-width: 760px; margin: 24px auto; }
+  .level { flex-direction: column; min-height: 200px; font-size: 1.6rem; font-weight: 800; border-width: 3px; }
+  .level .e { font-size: 4rem; }
+  .stars { font-size: 2rem; letter-spacing: 6px; margin: 4px 0 10px; }
+  .stars .off { opacity: .25; }
+  .word-box { min-height: 2.2em; font-size: 2.6rem; font-weight: 800; letter-spacing: .08em; }
+  .teacher { margin-top: 18px; padding-top: 12px; border-top: 1px dashed var(--line); }
+  .teacher .label { font-size: .8rem; color: var(--muted); margin-bottom: 6px; }
+  kbd { background: #0007; border: 1px solid var(--line); border-radius: 6px; padding: 0 6px; font-size: .8em; }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <h1 class="title-font">🪄 Spell Challenge</h1>
+  <div class="tools">
+    <a class="btn btn-small" href="index.html">🏠 처음으로</a>
+    <button class="btn-small" onclick="Magic.toggleFullscreen()">⛶ 전체화면</button>
+  </div>
+</div>
+
+<main class="wrap center" id="app"></main>
+
+<script src="assets/common.js"></script>
+<script>
+// 단어 목록: accept = 아이 발음/인식 오차를 감안해 정답으로 인정할 말
+const WORDS = {
+  beginner: [
+    { w: 'owl', e: '🦉', accept: ['owl', 'owls', 'howl', 'al', 'all', 'oul', 'hole'] },
+    { w: 'wand', e: '🪄', accept: ['wand', 'wands', 'want', 'wants', 'won', 'wan'] },
+    { w: 'broom', e: '🧹', accept: ['broom', 'brooms', 'brume', 'brum', 'groom'] },
+    { w: 'cat', e: '🐱', accept: ['cat', 'cats', 'kat', 'kitty'] },
+    { w: 'key', e: '🔑', accept: ['key', 'keys', 'ki', 'kee', 'kiki'] },
+    { w: 'book', e: '📕', accept: ['book', 'books', 'buck'] },
+    { w: 'hat', e: '🎩', accept: ['hat', 'hats', 'had', 'hut'] },
+    { w: 'frog', e: '🐸', accept: ['frog', 'frogs', 'frock', 'fog'] },
+    { w: 'moon', e: '🌙', accept: ['moon', 'moons', 'mood'] },
+    { w: 'star', e: '⭐', accept: ['star', 'stars', 'stop'] },
+    { w: 'cup', e: '🥤', accept: ['cup', 'cups', 'cop', 'cap'] },
+    { w: 'box', e: '📦', accept: ['box', 'boxes', 'books', 'fox'] },
+  ],
+  advanced: [
+    { w: 'wizard', e: '🧙', accept: ['wizard', 'wizards', 'wizzard', 'lizard'] },
+    { w: 'dragon', e: '🐉', accept: ['dragon', 'dragons', 'drag on'] },
+    { w: 'castle', e: '🏰', accept: ['castle', 'castles', 'cassel', 'kasel'] },
+    { w: 'potion', e: '🧪', accept: ['potion', 'potions', 'portion', 'motion', 'ocean'] },
+    { w: 'ghost', e: '👻', accept: ['ghost', 'ghosts', 'goes', 'gost', 'host'] },
+    { w: 'spider', e: '🕷️', accept: ['spider', 'spiders'] },
+    { w: 'candle', e: '🕯️', accept: ['candle', 'candles', 'kendall', 'can dull'] },
+    { w: 'letter', e: '✉️', accept: ['letter', 'letters', 'ladder', 'later'] },
+    { w: 'map', e: '🗺️', accept: ['map', 'maps', 'mop', 'nap'] },
+    { w: 'crown', e: '👑', accept: ['crown', 'crowns', 'clown', 'brown'] },
+    { w: 'unicorn', e: '🦄', accept: ['unicorn', 'unicorns', 'unicon'] },
+    { w: 'snake', e: '🐍', accept: ['snake', 'snakes', 'snack', 'stake'] },
+  ],
+};
+const ROUND = 5;
+
+const app = document.getElementById('app');
+let level, list, idx, success, tries, busy = false, turn = 0;
+
+function home() {
+  app.innerHTML = `
+    <div class="card pop" style="margin-top:24px">
+      <div style="font-size:6rem">🪄</div>
+      <h2 class="title-font" style="font-size:2.2rem;margin:6px 0;color:var(--gold)">Spell Challenge</h2>
+      <p style="font-size:1.4rem;margin:4px 0">Look at the picture. Say the magic word!</p>
+      <p class="ko">그림을 보고 영어 단어를 말하면 마법이 걸려요! (${ROUND}문제)</p>
+      <div class="level-grid">
+        <button class="level" data-l="beginner"><span class="e">🧹</span>Beginner<span class="ko">기초 (3~4학년)</span></button>
+        <button class="level" data-l="advanced"><span class="e">🐉</span>Advanced<span class="ko">도전 (5~6학년)</span></button>
+      </div>
+    </div>`;
+  Magic.micNotice(app);
+  app.querySelectorAll('.level').forEach(b => b.onclick = () => startRound(b.dataset.l));
+  Magic.speak('Look at the picture. Say the magic word!');
+}
+
+function startRound(l) {
+  level = l; list = Magic.shuffle(WORDS[l]).slice(0, ROUND); idx = 0; success = 0;
+  Magic.sfx.magic();
+  showWord();
+}
+
+function starsHtml() {
+  return list.map((_, i) => `<span class="${i < success ? '' : 'off'}">⭐</span>`).join('');
+}
+
+function showWord() {
+  tries = 0; busy = false; turn++;
+  Magic.stopListening();
+  const W = list[idx];
+  app.innerHTML = `
+    <div class="pill" style="margin-top:6px">${idx + 1} / ${list.length}</div>
+    <div class="stars">${starsHtml()}</div>
+    <div class="big-emoji pop" id="pic">${W.e}</div>
+    <div style="font-size:1.6rem;font-weight:700">What is it? <span class="ko">무엇일까요?</span></div>
+    <div class="word-box" id="word"></div>
+    <div class="row" style="margin:6px 0">
+      <button class="mic" id="mic" aria-label="말하기">🎤</button>
+    </div>
+    <div class="heard" id="heard">🎤를 누르고 말해 보세요.</div>
+    <div class="feedback" id="fb"></div>
+    <div class="row">
+      <button class="btn-small" id="hint">💡 Hint</button>
+      <button class="btn-small" id="listen">🔊 Listen</button>
+    </div>
+    <div class="teacher">
+      <div class="label">선생님용 · <kbd>Space</kbd> 말하기 <kbd>Enter</kbd> 통과 <kbd>→</kbd> 넘기기</div>
+      <div class="row">
+        <button class="btn-small btn-ok" id="pass">✔ 통과</button>
+        <button class="btn-small" id="skip">➜ 넘기기</button>
+      </div>
+    </div>`;
+  const mic = document.getElementById('mic');
+  if (!Magic.canListen) mic.disabled = true;
+  mic.onclick = doListen;
+  document.getElementById('hint').onclick = () => {
+    const w = W.w;
+    document.getElementById('word').textContent = w[0].toUpperCase() + ' ' + '_ '.repeat(w.length - 1);
+  };
+  document.getElementById('listen').onclick = () => {
+    document.getElementById('word').textContent = W.w.toUpperCase();
+    Magic.speak(W.w);
+  };
+  document.getElementById('pass').onclick = () => correct(true);
+  document.getElementById('skip').onclick = next;
+  Magic.speak('What is it?');
+}
+
+async function doListen() {
+  if (busy) return;
+  const W = list[idx];
+  const mic = document.getElementById('mic');
+  const heard = document.getElementById('heard');
+  const fb = document.getElementById('fb');
+  busy = true;
+  mic.classList.add('listening'); heard.textContent = 'Listening... 🎧'; fb.textContent = '';
+  try {
+    const my = turn;
+    const said = await Magic.listen({ timeout: 5000 });
+    if (my !== turn) return;
+    mic.classList.remove('listening');
+    heard.innerHTML = said.length ? `I heard: <b>${said[0]}</b>` : '잘 안 들렸어요. 조금 더 크게!';
+    if (Magic.matchWord(said, W.accept)) return correct(false);
+    tries++;
+    busy = false;
+    fb.className = 'feedback bad'; fb.textContent = 'Try again!';
+    Magic.sfx.bad(); Magic.shake(document.getElementById('pic'));
+    if (tries === 2) document.getElementById('hint').click();
+    if (tries >= 3) document.getElementById('listen').click();
+  } catch (e) {
+    mic.classList.remove('listening'); busy = false;
+    heard.textContent = '마이크 오류: 선생님이 ✔ 통과로 진행해 주세요.';
+  }
+}
+
+function correct(byTeacher) {
+  busy = true;
+  const W = list[idx];
+  success++;
+  Magic.inc('spells');
+  document.getElementById('word').textContent = W.w.toUpperCase();
+  const fb = document.getElementById('fb');
+  fb.className = 'feedback ok'; fb.textContent = '✨ Excellent! ✨';
+  document.querySelector('.stars').innerHTML = starsHtml();
+  Magic.sfx.ok(); Magic.sparkle(document.getElementById('pic'));
+  const article = /^[aeiou]/.test(W.w) ? 'an' : 'a';
+  Magic.speak(`Excellent! It's ${article} ${W.w}!`).then(() => setTimeout(next, 300));
+}
+
+function next() {
+  idx++;
+  if (idx < list.length) showWord(); else finish();
+}
+
+function finish() {
+  Magic.inc('spell_players');
+  const msg = success === list.length ? 'Perfect! You are a great wizard!' : success >= 3 ? 'Great job, wizard!' : 'Good try, young wizard!';
+  app.innerHTML = `
+    <div class="card pop" style="margin-top:24px">
+      <div style="font-size:6rem">🏅</div>
+      <h2 class="title-font" style="font-size:2.2rem;color:var(--gold);margin:6px 0">${msg}</h2>
+      <div class="stars" style="font-size:3rem">${starsHtml()}</div>
+      <p style="font-size:1.4rem">You cast <b>${success}</b> spells!</p>
+      <p class="ko">이제 Forbidden Room으로 이동하세요! ➜</p>
+      <div class="row" style="margin-top:14px">
+        <button class="btn-gold btn-big" id="again">🪄 Next Student</button>
+      </div>
+    </div>`;
+  Magic.sfx.magic(); Magic.sparkle(app.querySelector('.card'));
+  Magic.speak(msg + ` You cast ${success} spells!`);
+  document.getElementById('again').onclick = home;
+}
+
+// 선생님 단축키
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('mic') || !list || idx >= list.length) return;
+  if (e.code === 'Space') { e.preventDefault(); doListen(); }
+  else if (e.key === 'Enter') { e.preventDefault(); if (!busy) correct(true); }
+  else if (e.key === 'ArrowRight') { e.preventDefault(); if (!busy) next(); }
+});
+
+home();
+</script>
+</body>
+</html>
