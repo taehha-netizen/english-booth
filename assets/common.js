@@ -183,11 +183,95 @@
     (container || document.body).prepend(d);
   }
 
+
+  // ---------- 호그와트 장식 ----------
+  const HOUSES = {
+    gryffindor: { name: 'Gryffindor', e: '🦁', trait: 'Brave', ko: '용감한' },
+    hufflepuff: { name: 'Hufflepuff', e: '🦡', trait: 'Kind', ko: '친절한' },
+    ravenclaw:  { name: 'Ravenclaw',  e: '🦅', trait: 'Smart', ko: '지혜로운' },
+    slytherin:  { name: 'Slytherin',  e: '🐍', trait: 'Ambitious', ko: '야망 있는' },
+  };
+
+  // 낡고 구겨진 마법의 모자 (눈 주름 + 말하는 입)
+  function hatSVG(size = '') {
+    return `
+    <div class="hat-wrap ${size}" id="hat">
+      <svg viewBox="0 0 210 200" aria-label="Sorting Hat">
+        <defs>
+          <linearGradient id="hatG" x1="0" x2="1">
+            <stop offset="0" stop-color="#3d2814"/><stop offset=".45" stop-color="#7a5430"/><stop offset="1" stop-color="#3a2510"/>
+          </linearGradient>
+          <linearGradient id="brimG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#6e4a28"/><stop offset="1" stop-color="#2e1d0c"/>
+          </linearGradient>
+        </defs>
+        <ellipse cx="105" cy="178" rx="98" ry="18" fill="url(#brimG)"/>
+        <path d="M38 172 C52 135 58 110 70 88 C82 66 92 50 112 34 C128 21 150 14 166 22 C176 28 172 40 160 38 C146 36 136 44 132 58 C128 80 140 120 172 172 Z" fill="url(#hatG)"/>
+        <path d="M62 120 C80 112 120 112 146 122" stroke="#2a1a0a" stroke-width="3" fill="none" opacity=".6"/>
+        <path d="M78 78 C92 72 112 72 128 80" stroke="#2a1a0a" stroke-width="3" fill="none" opacity=".5"/>
+        <path d="M118 40 C126 46 130 54 130 62" stroke="#a87a48" stroke-width="2" fill="none" opacity=".6"/>
+        <path d="M150 150 l10 -6 M154 158 l10 -6 M158 166 l10 -6" stroke="#c9a46a" stroke-width="2"/>
+        <path d="M70 108 Q86 94 100 106" stroke="#1a0f05" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <path d="M112 104 Q128 92 142 106" stroke="#1a0f05" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <g class="hat-mouth"><path d="M76 141 Q105 124 136 141 Q105 160 76 141 Z" fill="#140a03"/></g>
+        <ellipse cx="105" cy="168" rx="72" ry="7" fill="#1e1308" opacity=".6"/>
+      </svg>
+    </div>`;
+  }
+
+  function crest(h, size = '') {
+    return `<div class="crest h-${h} ${size}"><span class="animal">${HOUSES[h].e}</span></div>`;
+  }
+
+  // 모자가 말할 때 입이 움직임
+  function hatSay(text, opts) {
+    const hat = document.getElementById('hat');
+    if (hat) hat.classList.add('talking');
+    return speak(text, opts).then(() => {
+      const h = document.getElementById('hat');
+      if (h) h.classList.remove('talking');
+    });
+  }
+
+  function confetti(colors = ['#e8c15a', '#fff1b5', '#b8862a']) {
+    for (let i = 0; i < 70; i++) {
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      c.style.left = Math.random() * 100 + 'vw';
+      c.style.background = colors[i % colors.length];
+      c.style.animationDuration = (2 + Math.random() * 2.5) + 's';
+      c.style.animationDelay = Math.random() * .8 + 's';
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 5500);
+    }
+  }
+
+  // 떠다니는 촛불: 모든 페이지에 자동으로 깔림 (가운데 글자 영역은 피해 양옆에 배치)
+  function makeCandles() {
+    if (document.getElementById('candles')) return;
+    const box = document.createElement('div');
+    box.className = 'candles'; box.id = 'candles'; box.setAttribute('aria-hidden', 'true');
+    for (let i = 0; i < 14; i++) {
+      const c = document.createElement('div');
+      c.className = 'candle';
+      const side = i % 2 ? 78 + Math.random() * 19 : 2 + Math.random() * 19;
+      c.style.left = side + '%';
+      c.style.top = (8 + Math.random() * 60) + '%';
+      c.style.setProperty('--d', (4 + Math.random() * 4) + 's');
+      c.style.animationDelay = (-Math.random() * 6) + 's';
+      c.style.scale = String(.6 + Math.random() * .6);
+      box.appendChild(c);
+    }
+    document.body.prepend(box);
+  }
+  if (document.body) makeCandles(); else document.addEventListener('DOMContentLoaded', makeCandles);
+
   window.Magic = {
     canListen: !!SR, speak, listen, stopListening,
     normalize, words, matchWord, scoreSentence,
     readStats, inc, resetStats,
     settings, saveSettings,
     sparkle, shake, pop, sfx, shuffle, toggleFullscreen, micNotice,
+    HOUSES, hatSVG, crest, hatSay, confetti,
   };
 })();

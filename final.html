@@ -5,24 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Final Spell</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@600;800&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/common.css">
 <style>
-  .level-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; max-width: 760px; margin: 24px auto; }
-  .level { flex-direction: column; min-height: 200px; font-size: 1.6rem; font-weight: 800; border-width: 3px; }
-  .level .e { font-size: 4rem; }
-  .cmd { font-size: 3rem; font-weight: 800; line-height: 1.3; margin: 18px 0; min-height: 2.6em; display: flex; align-items: center; justify-content: center; }
+  /* 주문서(양피지)에 적힌 지시문 */
+  .cmd { font-family: "IM Fell English", Georgia, serif; font-size: 3.2rem; line-height: 1.25; margin: 0; min-height: 2.6em; display: flex; align-items: center; justify-content: center; color: var(--ink); }
   .cmd.blur { filter: blur(14px); }
-  .c-red { color: #ff5c5c; } .c-blue { color: #5ca8ff; } .c-yellow { color: #ffd84a; } .c-green { color: #5cdb7a; }
-  .steps { display: flex; gap: 6px; justify-content: center; margin: 8px 0; }
-  .steps span { width: 34px; height: 8px; border-radius: 4px; background: #fff3; }
-  .steps span.on { background: var(--gold); }
+  .c-red { color: #b3161b; } .c-blue { color: #1f4fa8; } .c-yellow { color: #b8860b; } .c-green { color: #1d7a43; }
+  .cmd [class^="c-"] { font-weight: 700; }
+  .controls { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 34px; }
+  .label-check { display: inline-flex; gap: 8px; align-items: center; margin-top: 18px; color: var(--ink-soft); font-size: .95rem; }
   @media (max-width: 640px) { .cmd { font-size: 1.9rem; } }
 </style>
 </head>
 <body>
 <div class="topbar">
-  <h1 class="title-font">🥤 Final Spell</h1>
+  <h1>🥤 The Final Spell</h1>
   <div class="tools">
     <a class="btn btn-small" href="index.html">🏠 처음으로</a>
     <button class="btn-small" onclick="Magic.toggleFullscreen()">⛶ 전체화면</button>
@@ -56,16 +54,19 @@ function colorize(t) {
 
 function home() {
   app.innerHTML = `
-    <div class="card pop" style="margin-top:24px">
-      <div style="font-size:6rem">🥤🪄</div>
-      <h2 class="title-font" style="font-size:2.2rem;margin:6px 0;color:var(--gold)">Final Spell</h2>
-      <p style="font-size:1.4rem;margin:4px 0">Listen and build the magic tower!</p>
+    <div class="pop" style="margin-top:18px">
+      <div style="font-size:5.5rem;filter:drop-shadow(0 0 24px #ffd25a88)">🥤🪄</div>
+      <h2 class="title" style="font-size:3rem">The Final Spell</h2>
+      <p class="speech" style="margin:4px 0">“Listen and build the magic tower!”</p>
       <p class="ko">영어 지시를 듣고 컵을 쌓아요. 원어민 선생님이 없을 때 앱이 대신 읽어 줘요.</p>
-      <div class="level-grid">
-        <button class="level" data-l="beginner"><span class="e">🥤</span>Beginner<span class="ko">기초</span></button>
-        <button class="level" data-l="advanced"><span class="e">🏰</span>Advanced<span class="ko">도전</span></button>
+      <div class="parchment" style="max-width:820px;margin-top:30px">
+        <div class="level-grid">
+          <button class="opt level" data-l="beginner"><span class="medal">🥤</span>Beginner<span class="ko">기초</span></button>
+          <button class="opt level" data-l="advanced"><span class="medal">🏰</span>Advanced<span class="ko">도전</span></button>
+        </div>
+        <label class="label-check"><input type="checkbox" id="hide"> 글자 가리기 (듣기만으로 도전)</label>
+        <div class="seal">F</div>
       </div>
-      <label class="ko"><input type="checkbox" id="hide"> 글자 가리기 (듣기만으로 도전)</label>
     </div>`;
   document.getElementById('hide').checked = hideText;
   document.getElementById('hide').onchange = e => hideText = e.target.checked;
@@ -79,13 +80,16 @@ function home() {
 function show() {
   const t = list[i];
   app.innerHTML = `
-    <div class="steps">${list.map((_, k) => `<span class="${k <= i ? 'on' : ''}"></span>`).join('')}</div>
+    <div class="progress" style="margin-top:14px">${list.map((_, k) => `<span class="${k <= i ? 'on' : ''}"></span>`).join('')}</div>
     <div class="pill">Spell ${i + 1} / ${list.length}</div>
-    <div class="cmd pop ${hideText ? 'blur' : ''}" id="cmd">${colorize(t)}</div>
-    <div class="row">
+    <div class="parchment pop" style="margin-top:30px">
+      <div class="cmd ${hideText ? 'blur' : ''}" id="cmd"><span>${colorize(t)}</span></div>
+      <div class="seal">F</div>
+    </div>
+    <div class="controls">
       <button class="btn-big" id="again">🔊 Again</button>
       ${hideText ? '<button class="btn-big" id="reveal">👀 Show</button>' : ''}
-      <button class="btn-gold btn-big" id="next">${i < list.length - 1 ? 'Next ➜' : '✔ Finish'}</button>
+      <button class="btn-magic" id="next">${i < list.length - 1 ? 'Next ➜' : '✔ Finish'}</button>
     </div>
     <p class="ko" style="margin-top:16px">선생님: 학생이 지시대로 했으면 Next를 눌러 주세요.</p>`;
   Magic.speak(t, { rate: 0.8 });
@@ -102,15 +106,15 @@ function show() {
 function finish() {
   Magic.inc('final_players');
   app.innerHTML = `
-    <div class="card pop" style="margin-top:24px">
-      <div style="font-size:6rem">🎉🏰</div>
-      <h2 class="title-font" style="font-size:2.4rem;color:var(--gold);margin:6px 0">Congratulations!</h2>
-      <p style="font-size:1.4rem">You are a real Hogwarts wizard!</p>
+    <div class="pop" style="margin-top:18px">
+      ${Magic.hatSVG()}
+      <h2 class="title" style="font-size:3rem">Congratulations!</h2>
+      <p class="speech" style="margin:4px 0">“You are a real Hogwarts wizard!”</p>
       <p class="ko">House 인증 카드를 받고 포토존으로 가세요! 📸</p>
-      <button class="btn-gold btn-big" id="again" style="margin-top:14px">🥤 Next Student</button>
+      <button class="btn-magic" id="again" style="margin-top:22px">🥤 Next Student</button>
     </div>`;
-  Magic.sfx.magic(); Magic.sparkle(app.querySelector('.card'), ['🎉', '✨', '⭐']);
-  Magic.speak('Congratulations! You are a real Hogwarts wizard!');
+  Magic.sfx.magic(); Magic.confetti(); Magic.sparkle(document.getElementById('hat'), ['🎉', '✨', '⭐']);
+  Magic.hatSay('Congratulations! You are a real Hogwarts wizard!');
   document.getElementById('again').onclick = home;
 }
 

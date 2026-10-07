@@ -5,75 +5,105 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Welcome to Hogwarts</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@600;800&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/common.css">
 <style>
-  .hero { text-align: center; padding: 28px 0 8px; }
-  .hero h1 { font-size: 3rem; margin: 0; color: var(--gold); text-shadow: 0 0 24px #e8c15a66; }
-  .flow { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin: 14px 0 24px; font-size: .85rem; }
-  .flow span { background: #0006; border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; }
-  .flow span.app { border-color: var(--gold); color: var(--gold); }
-  .apps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
-  .app-card { display: flex; flex-direction: column; align-items: flex-start; text-align: left; gap: 6px; padding: 22px; min-height: 200px; border-radius: 22px; border: 2px solid var(--line); background: linear-gradient(160deg, #2b3470, #1a1f45); color: var(--text); text-decoration: none; transition: transform .1s, border-color .2s; }
-  .app-card:hover { border-color: var(--gold); }
-  .app-card:active { transform: scale(.98); }
-  .app-card .e { font-size: 3.4rem; line-height: 1; }
-  .app-card .t { font-size: 1.6rem; font-weight: 800; }
-  .app-card .d { color: var(--muted); font-size: .95rem; }
-  .app-card .n { font-size: .8rem; color: var(--gold); }
-  details.teacher { margin: 28px 0 40px; }
-  details.teacher summary { cursor: pointer; font-weight: 700; padding: 12px 0; color: var(--gold); }
+  .hero { text-align: center; padding: 18px 0 4px; }
+  .hero .title { font-size: 3.4rem; }
+
+  /* 학생 동선 */
+  .flow { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; align-items: center; margin: 12px 0 30px; font: 600 .85rem "Cinzel", Georgia, serif; }
+  .flow span { background: #000a; border: 1px solid #d9a93a44; border-radius: 999px; padding: 4px 12px; color: var(--muted); }
+  .flow span.app { border-color: var(--gold); color: var(--gold-1); box-shadow: 0 0 12px #ffcc5a33; }
+  .flow i { color: #d9a93a88; font-style: normal; }
+
+  /* 앱 카드 = 호그와트 입학 편지 */
+  .apps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 30px 26px; position: relative; z-index: 1; }
+  .letter { position: relative; display: flex; gap: 18px; align-items: center; text-align: left; padding: 26px 24px 30px; min-height: 190px;
+    color: var(--ink); text-decoration: none; border-radius: 6px 10px 8px 12px / 12px 8px 10px 6px;
+    background:
+      linear-gradient(155deg, transparent 49.6%, #a0743033 50%, transparent 50.4%),
+      linear-gradient(25deg, transparent 49.6%, #a0743033 50%, transparent 50.4%),
+      radial-gradient(ellipse at 20% 10%, #fff8 0%, transparent 40%),
+      radial-gradient(ellipse at center, var(--parch-1) 0%, var(--parch-2) 70%, var(--parch-3) 100%);
+    box-shadow: inset 0 0 30px #8a5a2077, 0 14px 30px #000b; transition: transform .15s, box-shadow .2s; }
+  .letter:hover { transform: translateY(-4px) rotate(-.4deg); box-shadow: inset 0 0 30px #8a5a2077, 0 0 0 3px #fbe7a1, 0 18px 40px #000c; }
+  .letter:active { transform: scale(.98); }
+  .letter .medal { width: 96px; height: 96px; border-radius: 50%; display: grid; place-items: center; font-size: 3.2rem; flex: none;
+    background: radial-gradient(circle at 35% 30%, #3a2a5a, #161030); border: 4px solid var(--gold-2); box-shadow: inset 0 0 0 3px #0005, 0 6px 12px #0007; }
+  .letter .n { font: 800 .75rem "Cinzel", Georgia, serif; color: var(--ink-soft); letter-spacing: .08em; }
+  .letter .t { display: block; font: 800 1.6rem "Cinzel", Georgia, serif; margin: 2px 0 4px; }
+  .letter .d { display: block; font-size: .92rem; color: #4e3519; line-height: 1.4; }
+  .letter .seal { width: 52px; height: 52px; font-size: 1.3rem; right: 16px; bottom: -18px; }
+
+  /* 선생님 메뉴 */
+  details.teacher-menu { margin: 44px 0 40px; }
+  details.teacher-menu summary { cursor: pointer; font: 800 1rem "Cinzel", Georgia, serif; padding: 4px 0 10px; color: var(--gold-1); }
   .stat-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 10px 0; }
-  .stat { background: #0005; border: 1px solid var(--line); border-radius: 14px; padding: 12px; text-align: center; }
-  .stat b { display: block; font-size: 1.8rem; }
+  .stat { background: #0006; border: 1px solid #d9a93a44; border-radius: 14px; padding: 12px; text-align: center; }
+  .stat b { display: block; font: 800 1.9rem "Cinzel", Georgia, serif; color: var(--gold-1); }
   .stat small { color: var(--muted); }
-  .houses-bar { display: flex; height: 26px; border-radius: 12px; overflow: hidden; background: #0005; margin: 8px 0 4px; }
-  .houses-bar div { height: 100%; }
+  .houses-bar { display: flex; height: 26px; border-radius: 12px; overflow: hidden; background: #0006; margin: 8px 0 4px; border: 1px solid #d9a93a44; }
+  .houses-bar div { height: 100%; background: linear-gradient(180deg, var(--c1), var(--c2)); }
   .settings { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; font-size: .95rem; margin-top: 14px; }
+  .settings select { font: inherit; background: #171b3c; color: var(--text); border: 1px solid var(--gold-2); border-radius: 8px; padding: 4px 8px; }
   .mic-test { font-size: .95rem; color: var(--muted); }
-  @media (max-width: 760px) { .apps { grid-template-columns: 1fr; } .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .hero h1 { font-size: 2rem; } }
+  @media (max-width: 760px) { .apps { grid-template-columns: 1fr; } .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .hero .title { font-size: 2.1rem; } }
 </style>
 </head>
 <body>
 <main class="wrap">
   <section class="hero">
-    <div style="font-size:4rem">🏰</div>
-    <h1 class="title-font">Welcome to Hogwarts</h1>
-    <p class="muted">마법학교 영어 체험 부스 · Sorting Ceremony + Hogwarts Mission</p>
+    <div id="heroHat"></div>
+    <h1 class="title">Welcome to Hogwarts</h1>
+    <p class="speech" style="font-size:1.5rem;margin:4px 0">Sorting Ceremony + Hogwarts Mission</p>
+    <p class="ko">마법학교 영어 체험 부스</p>
   </section>
 
   <div class="flow">
-    <span>✉️ Invitation</span><span class="app">🎩 Sorting</span><span>🙋 Your Choice</span><span class="app">🪄 Spell</span><span class="app">🗝️ Forbidden Room</span><span class="app">🥤 Final Spell</span><span>🏅 Complete</span><span>📸 Photo Zone</span>
+    <span>✉️ Invitation</span><i>✦</i><span class="app">🎩 Sorting</span><i>✦</i><span>🙋 Your Choice</span><i>✦</i><span class="app">🪄 Spell</span><i>✦</i><span class="app">🗝️ Forbidden Room</span><i>✦</i><span class="app">🥤 Final Spell</span><i>✦</i><span>🏅 Complete</span><i>✦</i><span>📸 Photo Zone</span>
   </div>
 
   <section class="apps">
-    <a class="app-card" href="sorting.html">
-      <span class="n">STEP 2 · 태블릿/스탠바이미</span>
-      <span class="e">🎩</span>
-      <span class="t">Sorting Ceremony</span>
-      <span class="d">영어 질문 4개에 답하면 모자가 기숙사를 추천 → 학생이 최종 선택(Your Choice). 그림 터치 또는 영어로 말하기.</span>
+    <a class="letter" href="sorting.html">
+      <span class="medal">🎩</span>
+      <span>
+        <span class="n">STEP 2 · 태블릿/스탠바이미</span>
+        <span class="t">Sorting Ceremony</span>
+        <span class="d">영어 질문 4개에 답하면 모자가 기숙사를 추천 → 학생이 최종 선택(Your Choice). 그림 터치 또는 영어로 말하기.</span>
+      </span>
+      <span class="seal">H</span>
     </a>
-    <a class="app-card" href="spell.html">
-      <span class="n">STEP 3 · 음성 인식</span>
-      <span class="e">🪄</span>
-      <span class="t">Spell Challenge</span>
-      <span class="d">그림을 보고 영어 단어 말하기. Beginner / Advanced 5문제, 힌트·발음 듣기 지원.</span>
+    <a class="letter" href="spell.html">
+      <span class="medal">🪄</span>
+      <span>
+        <span class="n">STEP 3 · 음성 인식</span>
+        <span class="t">Spell Challenge</span>
+        <span class="d">그림을 보고 영어 단어 말하기. Beginner / Advanced 5문제, 힌트·발음 듣기 지원.</span>
+      </span>
+      <span class="seal">S</span>
     </a>
-    <a class="app-card" href="forbidden.html">
-      <span class="n">STEP 4 · 듣기 + 문장 말하기</span>
-      <span class="e">🗝️</span>
-      <span class="t">Forbidden Room</span>
-      <span class="d">"The key is under the book. Don't touch the bag!" 단서를 듣고 물건 찾기 → 위치를 문장으로 말하기.</span>
+    <a class="letter" href="forbidden.html">
+      <span class="medal">🗝️</span>
+      <span>
+        <span class="n">STEP 4 · 듣기 + 문장 말하기</span>
+        <span class="t">Forbidden Room</span>
+        <span class="d">"The key is under the book. Don't touch the bag!" 단서를 듣고 물건 찾기 → 위치를 문장으로 말하기.</span>
+      </span>
+      <span class="seal">F</span>
     </a>
-    <a class="app-card" href="final.html">
-      <span class="n">STEP 5 · 보조 도구</span>
-      <span class="e">🥤</span>
-      <span class="t">Final Spell</span>
-      <span class="d">컵스택 영어 지시문을 크게 보여주고 읽어 줌. 원어민 선생님 부재 시 대체용.</span>
+    <a class="letter" href="final.html">
+      <span class="medal">🥤</span>
+      <span>
+        <span class="n">STEP 5 · 보조 도구</span>
+        <span class="t">Final Spell</span>
+        <span class="d">컵스택 영어 지시문을 크게 보여주고 읽어 줌. 원어민 선생님 부재 시 대체용.</span>
+      </span>
+      <span class="seal">F</span>
     </a>
   </section>
 
-  <details class="teacher card">
+  <details class="teacher-menu card">
     <summary>👩‍🏫 선생님 메뉴 (참여 현황 · 설정 · 마이크 점검)</summary>
     <div id="stats"></div>
     <div class="settings">
@@ -96,12 +126,8 @@
 
 <script src="assets/common.js"></script>
 <script>
-const HOUSE = [
-  ['gryffindor', 'Gryffindor', '🦁', 'var(--gryffindor)'],
-  ['hufflepuff', 'Hufflepuff', '🦡', 'var(--hufflepuff)'],
-  ['ravenclaw', 'Ravenclaw', '🦅', 'var(--ravenclaw)'],
-  ['slytherin', 'Slytherin', '🐍', 'var(--slytherin)'],
-];
+const HOUSE = Object.entries(Magic.HOUSES).map(([k, h]) => [k, h.name, h.e]);
+document.getElementById('heroHat').innerHTML = Magic.hatSVG('small');
 
 function renderStats() {
   const s = Magic.readStats();
@@ -114,7 +140,7 @@ function renderStats() {
       <div class="stat"><b>${s.final_players || 0}</b><small>🥤 Final Spell 완료</small></div>
     </div>
     <div class="houses-bar">
-      ${total ? HOUSE.map(h => `<div style="width:${(s['house_' + h[0]] || 0) / total * 100}%;background:${h[3]}"></div>`).join('') : ''}
+      ${total ? HOUSE.map(h => `<div class="h-${h[0]}" style="width:${(s['house_' + h[0]] || 0) / total * 100}%"></div>`).join('') : ''}
     </div>
     <div class="row" style="justify-content:space-between;font-size:.9rem">
       ${HOUSE.map(h => `<span>${h[2]} ${h[1]} <b>${s['house_' + h[0]] || 0}</b> <span class="muted">(추천 ${s['reco_' + h[0]] || 0})</span></span>`).join('')}

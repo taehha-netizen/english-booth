@@ -8,151 +8,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@600;800&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/common.css">
 <style>
-  /* ===== 대연회장(Great Hall) 분위기 ===== */
-  :root {
-    --parch-1: #f6e7c1; --parch-2: #e6cd94; --parch-3: #c9a565;
-    --ink: #3a2510; --ink-soft: #6b4a26;
-    --gold-1: #fbe7a1; --gold-2: #d9a93a; --gold-3: #8a6416;
-  }
-  body {
-    background:
-      radial-gradient(ellipse 120% 60% at 50% 115%, #5a3410cc 0%, transparent 60%),
-      radial-gradient(ellipse at 50% -10%, #2b3a7a 0%, #121735 45%, #07091a 100%) fixed;
-    background-color: #07091a;
-  }
-  html { overflow-x: hidden; }
-  /* 가장자리 어둡게 */
-  body::after {
-    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
-    background: radial-gradient(ellipse at center, transparent 55%, #000a 100%);
-  }
-  .fell { font-family: "IM Fell English", Georgia, "Noto Serif KR", serif; }
-  .cinzel { font-family: "Cinzel", Georgia, serif; }
-  .ko { font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; }
-
-  .topbar { background: linear-gradient(180deg, #000c, #0006); border-bottom: 1px solid #d9a93a55; }
-  .topbar h1 { font-family: "Cinzel Decorative", serif; }
-
-  main.wrap { position: relative; z-index: 1; }
-
-  /* ===== 떠다니는 촛불 ===== */
-  .candles { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
-  .candle { position: absolute; width: 14px; height: 52px; border-radius: 3px 3px 2px 2px;
-    background: linear-gradient(90deg, #d8cbb0, #fffaf0 40%, #e6dcc4 70%, #b9ab8e);
-    animation: float var(--d, 6s) ease-in-out infinite alternate; opacity: .9; }
-  .candle::before { /* 불꽃 */
-    content: ""; position: absolute; left: 50%; top: -20px; width: 10px; height: 18px; transform: translateX(-50%);
-    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-    background: radial-gradient(ellipse at 50% 70%, #fff 0%, #ffe27a 35%, #ff9a1f 70%, transparent 75%);
-    animation: flicker .18s infinite alternate; }
-  .candle::after { /* 빛 번짐 */
-    content: ""; position: absolute; left: 50%; top: -42px; width: 70px; height: 70px; transform: translateX(-50%);
-    background: radial-gradient(circle, #ffcf6b55, transparent 65%); }
-  @keyframes float { from { transform: translateY(0); } to { transform: translateY(-22px); } }
-  @keyframes flicker { from { transform: translateX(-50%) scale(1, 1); } to { transform: translateX(-52%) scale(.9, 1.08); } }
-  body.dim .candles { opacity: .35; transition: opacity 1s; }
-
-  /* ===== 마법의 모자 (SVG) ===== */
-  .hat-wrap { display: inline-block; filter: drop-shadow(0 18px 24px #000c); }
-  .hat-wrap svg { width: 240px; height: auto; display: block; transform-origin: 50% 90%; animation: sway 3s ease-in-out infinite; }
-  .hat-wrap.small svg { width: 120px; }
-  .hat-wrap.big svg { width: 300px; }
-  @keyframes sway { 0%,100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
-  .hat-mouth { transform-origin: 105px 141px; transition: transform .1s; }
-  .talking .hat-mouth { animation: talk .22s ease-in-out infinite alternate; }
-  .talking svg { animation: sway 3s ease-in-out infinite, bob .44s ease-in-out infinite alternate; }
-  @keyframes talk { from { transform: scaleY(.35); } to { transform: scaleY(1.25); } }
-  @keyframes bob { to { translate: 0 -4px; } }
-  .thinking svg { animation: ponder 1.1s ease-in-out infinite; }
-  @keyframes ponder { 0%,100% { transform: rotate(-10deg) scale(1); } 50% { transform: rotate(10deg) scale(1.04); } }
-
-  /* ===== 양피지 ===== */
-  .parchment {
-    position: relative; color: var(--ink); padding: 28px 34px 30px; margin: 10px auto; max-width: 900px;
-    background:
-      radial-gradient(ellipse at 20% 10%, #fff8 0%, transparent 40%),
-      radial-gradient(ellipse at 80% 90%, #a0743055 0%, transparent 45%),
-      radial-gradient(ellipse at center, var(--parch-1) 0%, var(--parch-2) 70%, var(--parch-3) 100%);
-    border-radius: 6px 10px 8px 12px / 12px 8px 10px 6px;
-    box-shadow: inset 0 0 40px #8a5a2088, inset 0 0 6px #5a3a1088, 0 18px 40px #000b;
-  }
-  .parchment::before, .parchment::after { /* 위아래 두루마리 */
-    content: ""; position: absolute; left: -14px; right: -14px; height: 22px; border-radius: 12px;
-    background: linear-gradient(180deg, #d9bd84, #a57c3d 55%, #6e4f22);
-    box-shadow: 0 4px 10px #0008;
-  }
-  .parchment::before { top: -12px; }
-  .parchment::after { bottom: -12px; }
-  .parchment .ko { color: var(--ink-soft); }
-
-  .seal { /* 밀랍 봉인 */
-    position: absolute; right: 22px; bottom: -26px; width: 64px; height: 64px; border-radius: 50%; z-index: 2;
-    background: radial-gradient(circle at 35% 30%, #e05858, #9c1010 60%, #5e0606);
-    box-shadow: 0 4px 10px #000a, inset 0 0 0 5px #b8262680;
-    display: grid; place-items: center; color: #ffd9c0; font: 900 1.6rem "Cinzel Decorative", serif;
-  }
-
-  /* ===== 진행 표시 (작은 촛불) ===== */
-  .progress { display: flex; gap: 18px; justify-content: center; margin: 4px 0 14px; }
-  .progress span { width: 10px; height: 26px; border-radius: 2px; background: #6b5a40; position: relative; }
-  .progress span.on { background: linear-gradient(90deg, #d8cbb0, #fffaf0, #c9bb9e); }
-  .progress span.on::before { content: ""; position: absolute; left: 50%; top: -14px; width: 8px; height: 12px; transform: translateX(-50%);
-    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: radial-gradient(ellipse at 50% 70%, #fff, #ffd25a 40%, #ff8a1a 75%, transparent 78%);
-    box-shadow: 0 0 14px 4px #ffb84a66; }
-
-  /* ===== 질문 화면 ===== */
-  .q-head { display: flex; align-items: center; justify-content: center; gap: 18px; }
-  .q-text { font-family: "IM Fell English", Georgia, serif; font-size: 2.5rem; margin: 0; line-height: 1.15; }
-  .speak-btn { background: #3a2510; border: 2px solid var(--gold-2); color: var(--gold-1); border-radius: 50%; width: 52px; height: 52px; padding: 0; font-size: 1.3rem; flex: none; }
-  .options { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin: 22px 0 6px; }
-  .opt {
-    flex-direction: column; gap: 6px; min-height: 200px; padding: 16px 8px; color: var(--ink);
-    font-family: "Cinzel", serif; font-weight: 800; font-size: 1.25rem;
-    background: linear-gradient(180deg, #fff6dc, #ecd6a2);
-    border: 3px solid #a57c3d; border-radius: 14px; box-shadow: 0 6px 0 #6e4f22, 0 10px 18px #0006;
-  }
-  .opt:active { transform: translateY(4px); box-shadow: 0 2px 0 #6e4f22, 0 4px 10px #0006; }
-  .opt .medal { width: 104px; height: 104px; border-radius: 50%; display: grid; place-items: center; font-size: 3.6rem;
-    background: radial-gradient(circle at 35% 30%, #3a2a5a, #161030); border: 4px solid var(--gold-2); box-shadow: inset 0 0 0 3px #00000055, 0 0 12px #d9a93a66; }
-  .opt.chosen { background: linear-gradient(180deg, #fff3b8, #f0c955); border-color: var(--gold-1); box-shadow: 0 0 0 4px #fbe7a1, 0 0 40px #ffd25a; }
-  .listen-row { display: flex; align-items: center; justify-content: center; gap: 18px; margin-top: 18px; }
-  .mic { background: radial-gradient(circle at 35% 30%, #fbe7a1, #d9a93a 55%, #8a6416); border: 4px solid #fff4; }
-  .heard { color: #e9dcc0; font-family: "IM Fell English", Georgia, serif; }
-  .hint { color: #d8c9a8; font-size: .95rem; }
-
-  /* ===== 문장(제목) ===== */
-  .title { font-family: "Cinzel Decorative", serif; font-weight: 900; color: var(--gold-1); margin: 6px 0;
-    background: linear-gradient(180deg, #fff6cf 10%, #e9bd52 55%, #9c6d18 90%); -webkit-background-clip: text; background-clip: text; color: transparent;
-    filter: drop-shadow(0 2px 0 #3a2508) drop-shadow(0 0 18px #ffcc5a55); }
-  .speech { font-family: "IM Fell English", Georgia, serif; font-style: italic; font-size: 2rem; color: #f3e6c8; text-shadow: 0 2px 8px #000; }
-
-  /* ===== 금빛 버튼 ===== */
-  .btn-magic {
-    font-family: "Cinzel", serif; font-weight: 800; font-size: 1.45rem; letter-spacing: .04em; color: #2a1a04;
-    padding: 16px 38px; border-radius: 999px; border: 2px solid #fff3c4;
-    background: linear-gradient(180deg, #fff1b5 0%, #e5b443 45%, #a77a1f 100%);
-    box-shadow: 0 0 0 4px #5a3d0c, 0 0 30px #ffcf5a77, inset 0 2px 0 #fff8;
-  }
-
-  /* ===== 기숙사 문장(방패) ===== */
-  .crest { position: relative; width: 100%; aspect-ratio: .84; display: grid; place-items: center;
-    border-radius: 14px 14px 50% 50% / 14px 14px 62% 62%;
-    background:
-      repeating-linear-gradient(135deg, #ffffff10 0 12px, transparent 12px 24px),
-      linear-gradient(180deg, var(--c1), var(--c2));
-    border: 6px solid var(--metal);
-    box-shadow: inset 0 0 0 3px #0005, inset 0 -20px 40px #0006, 0 10px 24px #000a; }
-  .crest .animal { font-size: 4.2rem; filter: drop-shadow(0 4px 4px #0009); margin-top: -10%; }
-  .house-btn .crest { max-width: 210px; margin: 0 auto; }
-  .crest.mini { width: 74px; }
-  .crest.mini .animal { font-size: 2.2rem; }
-  .crest.huge { width: 200px; }
-  .crest.huge .animal { font-size: 6.4rem; }
-  .h-gryffindor { --c1: #b3161b; --c2: #5c0709; --metal: #e3b23c; --glow: #ff5a3a; }
-  .h-slytherin  { --c1: #1d7a43; --c2: #08321a; --metal: #c9ced6; --glow: #4bd17e; }
-  .h-hufflepuff { --c1: #f0c22a; --c2: #8a6a00; --metal: #2a2a2a; --glow: #ffd84a; }
-  .h-ravenclaw  { --c1: #1f4fa8; --c2: #0c1f4a; --metal: #b97a3e; --glow: #5aa0ff; }
-
   .crests-row { display: flex; gap: 18px; justify-content: center; margin: 18px 0 26px; }
 
   /* Your Choice 카드 */
@@ -181,22 +36,13 @@
   .banner .crest { margin: 0 auto; }
   .banner p { color: #fffbe8; margin: 4px 0; }
 
-  .confetti { position: fixed; top: -20px; width: 10px; height: 16px; z-index: 60; pointer-events: none; animation: fall linear forwards; }
-  @keyframes fall { to { transform: translateY(110vh) rotate(720deg); } }
-
   @media (max-width: 860px) {
-    .options, .houses { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .q-text { font-size: 1.8rem; }
+    .houses { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .house-name { font-size: 1.8rem; }
-    .hat-wrap svg { width: 170px; } .hat-wrap.big svg { width: 210px; }
-    .crest.huge { width: 150px; } .crest.huge .animal { font-size: 4.6rem; }
-    .parchment { padding: 22px 16px 26px; }
   }
 </style>
 </head>
 <body>
-<div class="candles" id="candles" aria-hidden="true"></div>
-
 <div class="topbar">
   <h1>🕯️ The Sorting Ceremony</h1>
   <div class="tools">
@@ -209,12 +55,7 @@
 
 <script src="assets/common.js"></script>
 <script>
-const HOUSES = {
-  gryffindor: { name: 'Gryffindor', e: '🦁', trait: 'Brave', ko: '용감한' },
-  hufflepuff: { name: 'Hufflepuff', e: '🦡', trait: 'Kind', ko: '친절한' },
-  ravenclaw:  { name: 'Ravenclaw',  e: '🦅', trait: 'Smart', ko: '지혜로운' },
-  slytherin:  { name: 'Slytherin',  e: '🐍', trait: 'Ambitious', ko: '야망 있는' },
-};
+const HOUSES = Magic.HOUSES;
 const CONFETTI = {
   gryffindor: ['#b3161b', '#e3b23c'], hufflepuff: ['#f0c22a', '#2a2a2a'],
   ravenclaw: ['#1f4fa8', '#b97a3e'], slytherin: ['#1d7a43', '#c9ced6'],
@@ -248,83 +89,9 @@ const QUESTIONS = [
   ]},
 ];
 
-// ---------- 그림 요소 ----------
-// 낡고 구겨진 마법의 모자 (눈 주름 + 말하는 입)
-function hatSVG(size = '') {
-  return `
-  <div class="hat-wrap ${size}" id="hat">
-    <svg viewBox="0 0 210 200" aria-label="Sorting Hat">
-      <defs>
-        <linearGradient id="hatG" x1="0" x2="1">
-          <stop offset="0" stop-color="#3d2814"/><stop offset=".45" stop-color="#7a5430"/><stop offset="1" stop-color="#3a2510"/>
-        </linearGradient>
-        <linearGradient id="brimG" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#6e4a28"/><stop offset="1" stop-color="#2e1d0c"/>
-        </linearGradient>
-      </defs>
-      <ellipse cx="105" cy="178" rx="98" ry="18" fill="url(#brimG)"/>
-      <path d="M38 172 C52 135 58 110 70 88 C82 66 92 50 112 34 C128 21 150 14 166 22 C176 28 172 40 160 38 C146 36 136 44 132 58 C128 80 140 120 172 172 Z" fill="url(#hatG)"/>
-      <!-- 구김 주름 -->
-      <path d="M62 120 C80 112 120 112 146 122" stroke="#2a1a0a" stroke-width="3" fill="none" opacity=".6"/>
-      <path d="M78 78 C92 72 112 72 128 80" stroke="#2a1a0a" stroke-width="3" fill="none" opacity=".5"/>
-      <path d="M118 40 C126 46 130 54 130 62" stroke="#a87a48" stroke-width="2" fill="none" opacity=".6"/>
-      <!-- 꿰맨 자국 -->
-      <path d="M150 150 l10 -6 M154 158 l10 -6 M158 166 l10 -6" stroke="#c9a46a" stroke-width="2"/>
-      <!-- 눈 주름 -->
-      <path d="M70 108 Q86 94 100 106" stroke="#1a0f05" stroke-width="6" fill="none" stroke-linecap="round"/>
-      <path d="M112 104 Q128 92 142 106" stroke="#1a0f05" stroke-width="6" fill="none" stroke-linecap="round"/>
-      <!-- 입 -->
-      <g class="hat-mouth">
-        <path d="M76 141 Q105 124 136 141 Q105 160 76 141 Z" fill="#140a03"/>
-      </g>
-      <ellipse cx="105" cy="168" rx="72" ry="7" fill="#1e1308" opacity=".6"/>
-    </svg>
-  </div>`;
-}
-function crest(h, size = '') {
-  return `<div class="crest h-${h} ${size}"><span class="animal">${HOUSES[h].e}</span></div>`;
-}
-
-// 떠다니는 촛불 배치
-(function makeCandles() {
-  const box = document.getElementById('candles');
-  for (let i = 0; i < 14; i++) {
-    const c = document.createElement('div');
-    c.className = 'candle';
-    // 가운데(글자 영역)는 피해서 양옆에만 배치
-    const side = i % 2 ? 78 + Math.random() * 19 : 2 + Math.random() * 19;
-    c.style.left = side + '%';
-    c.style.top = (8 + Math.random() * 60) + '%';
-    c.style.setProperty('--d', (4 + Math.random() * 4) + 's');
-    c.style.animationDelay = (-Math.random() * 6) + 's';
-    c.style.scale = String(.6 + Math.random() * .6);
-    box.appendChild(c);
-  }
-})();
-
-// 모자가 말할 때 입이 움직임
-function hatSay(text, opts) {
-  const hat = document.getElementById('hat');
-  if (hat) hat.classList.add('talking');
-  return Magic.speak(text, opts).then(() => {
-    const h = document.getElementById('hat');
-    if (h) h.classList.remove('talking');
-  });
-}
-
-function confetti(h) {
-  const colors = CONFETTI[h];
-  for (let i = 0; i < 70; i++) {
-    const c = document.createElement('div');
-    c.className = 'confetti';
-    c.style.left = Math.random() * 100 + 'vw';
-    c.style.background = colors[i % colors.length];
-    c.style.animationDuration = (2 + Math.random() * 2.5) + 's';
-    c.style.animationDelay = Math.random() * .8 + 's';
-    document.body.appendChild(c);
-    setTimeout(() => c.remove(), 5500);
-  }
-}
+// 모자·문장·촛불·꽃가루는 assets/common.js (Magic) 에 있음
+const { hatSVG, crest, hatSay } = Magic;
+const confetti = h => Magic.confetti(CONFETTI[h]);
 
 // ---------- 화면 흐름 ----------
 const app = document.getElementById('app');

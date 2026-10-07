@@ -5,23 +5,40 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Spell Challenge</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@600;800&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/common.css">
 <style>
-  .level-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; max-width: 760px; margin: 24px auto; }
-  .level { flex-direction: column; min-height: 200px; font-size: 1.6rem; font-weight: 800; border-width: 3px; }
-  .level .e { font-size: 4rem; }
-  .stars { font-size: 2rem; letter-spacing: 6px; margin: 4px 0 10px; }
-  .stars .off { opacity: .25; }
-  .word-box { min-height: 2.2em; font-size: 2.6rem; font-weight: 800; letter-spacing: .08em; }
-  .teacher { margin-top: 18px; padding-top: 12px; border-top: 1px dashed var(--line); }
-  .teacher .label { font-size: .8rem; color: var(--muted); margin-bottom: 6px; }
-  kbd { background: #0007; border: 1px solid var(--line); border-radius: 6px; padding: 0 6px; font-size: .8em; }
+  /* 별 진행 표시 */
+  .stars { font-size: 2rem; letter-spacing: 6px; margin: 4px 0 6px; }
+  .stars span { filter: drop-shadow(0 0 8px #ffd25a); }
+  .stars .off { opacity: .2; filter: grayscale(1); }
+
+  /* 수정 구슬 */
+  .orb-wrap { position: relative; width: 300px; margin: 6px auto 0; }
+  .orb { width: 260px; height: 260px; margin: 0 auto; border-radius: 50%; display: grid; place-items: center; position: relative; z-index: 1;
+    background:
+      radial-gradient(circle at 32% 26%, #ffffffaa 0 6%, transparent 18%),
+      radial-gradient(circle at 50% 55%, #6d5bd0 0%, #2c1f6e 55%, #120b38 100%);
+    box-shadow: 0 0 0 4px #ffffff22, 0 0 50px #8a7cff88, inset 0 -20px 40px #0008; }
+  .orb .e { font-size: 8rem; filter: drop-shadow(0 6px 10px #000a); }
+  .orb.cast { animation: cast .9s ease-out; }
+  @keyframes cast { 0% { box-shadow: 0 0 0 4px #fff4, 0 0 50px #8a7cff88; } 40% { box-shadow: 0 0 0 10px #fbe7a1, 0 0 120px #ffd25a; } 100% { box-shadow: 0 0 0 4px #ffffff22, 0 0 50px #8a7cff88; } }
+  .orb-stand { width: 190px; height: 46px; margin: -26px auto 0; border-radius: 8px 8px 30px 30px;
+    background: linear-gradient(180deg, #fff1b5, #b8862a 45%, #5a3d0c); box-shadow: 0 10px 20px #000a; }
+
+  .q-line { font-family: "IM Fell English", Georgia, serif; font-size: 2.2rem; margin: 14px 0 0; }
+  .word-box { min-height: 1.6em; font-family: "Cinzel", Georgia, serif; font-size: 2.6rem; font-weight: 800; letter-spacing: .14em; color: var(--gold-1); text-shadow: 0 0 18px #ffcc5a88; }
+  .help-row { display: flex; gap: 12px; justify-content: center; }
+
+  @media (max-width: 640px) {
+    .orb-wrap { width: 220px; } .orb { width: 190px; height: 190px; } .orb .e { font-size: 5.6rem; } .orb-stand { width: 140px; }
+    .q-line { font-size: 1.6rem; } .word-box { font-size: 1.8rem; }
+  }
 </style>
 </head>
 <body>
 <div class="topbar">
-  <h1 class="title-font">🪄 Spell Challenge</h1>
+  <h1>🪄 Spell Challenge</h1>
   <div class="tools">
     <a class="btn btn-small" href="index.html">🏠 처음으로</a>
     <button class="btn-small" onclick="Magic.toggleFullscreen()">⛶ 전체화면</button>
@@ -70,14 +87,17 @@ let level, list, idx, success, tries, busy = false, turn = 0;
 
 function home() {
   app.innerHTML = `
-    <div class="card pop" style="margin-top:24px">
-      <div style="font-size:6rem">🪄</div>
-      <h2 class="title-font" style="font-size:2.2rem;margin:6px 0;color:var(--gold)">Spell Challenge</h2>
-      <p style="font-size:1.4rem;margin:4px 0">Look at the picture. Say the magic word!</p>
+    <div class="pop" style="margin-top:18px">
+      <div style="font-size:5.5rem;filter:drop-shadow(0 0 24px #ffd25a88)">🪄</div>
+      <h2 class="title" style="font-size:3rem">Spell Challenge</h2>
+      <p class="speech" style="margin:4px 0">“Look at the picture. Say the magic word!”</p>
       <p class="ko">그림을 보고 영어 단어를 말하면 마법이 걸려요! (${ROUND}문제)</p>
-      <div class="level-grid">
-        <button class="level" data-l="beginner"><span class="e">🧹</span>Beginner<span class="ko">기초 (3~4학년)</span></button>
-        <button class="level" data-l="advanced"><span class="e">🐉</span>Advanced<span class="ko">도전 (5~6학년)</span></button>
+      <div class="parchment" style="max-width:820px;margin-top:30px">
+        <div class="level-grid">
+          <button class="opt level" data-l="beginner"><span class="medal">🧹</span>Beginner<span class="ko">기초 (3~4학년)</span></button>
+          <button class="opt level" data-l="advanced"><span class="medal">🐉</span>Advanced<span class="ko">도전 (5~6학년)</span></button>
+        </div>
+        <div class="seal">S</div>
       </div>
     </div>`;
   Magic.micNotice(app);
@@ -102,18 +122,19 @@ function showWord() {
   app.innerHTML = `
     <div class="pill" style="margin-top:6px">${idx + 1} / ${list.length}</div>
     <div class="stars">${starsHtml()}</div>
-    <div class="big-emoji pop" id="pic">${W.e}</div>
-    <div style="font-size:1.6rem;font-weight:700">What is it? <span class="ko">무엇일까요?</span></div>
+    <div class="orb-wrap pop">
+      <div class="orb" id="pic"><span class="e">${W.e}</span></div>
+      <div class="orb-stand"></div>
+    </div>
+    <div class="q-line">What is it? <span class="ko">무엇일까요?</span></div>
     <div class="word-box" id="word"></div>
-    <div class="row" style="margin:6px 0">
+    <div class="listen-row" style="margin-top:4px">
+      <button class="speak-btn" id="hint" aria-label="힌트">💡</button>
       <button class="mic" id="mic" aria-label="말하기">🎤</button>
+      <button class="speak-btn" id="listen" aria-label="발음 듣기">🔊</button>
     </div>
-    <div class="heard" id="heard">🎤를 누르고 말해 보세요.</div>
+    <div class="heard" id="heard">🎤를 누르고 말해 보세요. <span class="ko">(💡 힌트 · 🔊 발음 듣기)</span></div>
     <div class="feedback" id="fb"></div>
-    <div class="row">
-      <button class="btn-small" id="hint">💡 Hint</button>
-      <button class="btn-small" id="listen">🔊 Listen</button>
-    </div>
     <div class="teacher">
       <div class="label">선생님용 · <kbd>Space</kbd> 말하기 <kbd>Enter</kbd> 통과 <kbd>→</kbd> 넘기기</div>
       <div class="row">
@@ -173,7 +194,9 @@ function correct(byTeacher) {
   const fb = document.getElementById('fb');
   fb.className = 'feedback ok'; fb.textContent = '✨ Excellent! ✨';
   document.querySelector('.stars').innerHTML = starsHtml();
-  Magic.sfx.ok(); Magic.sparkle(document.getElementById('pic'));
+  const pic = document.getElementById('pic');
+  pic.classList.add('cast');
+  Magic.sfx.ok(); Magic.sparkle(pic);
   const article = /^[aeiou]/.test(W.w) ? 'an' : 'a';
   Magic.speak(`Excellent! It's ${article} ${W.w}!`).then(() => setTimeout(next, 300));
 }
@@ -187,17 +210,18 @@ function finish() {
   Magic.inc('spell_players');
   const msg = success === list.length ? 'Perfect! You are a great wizard!' : success >= 3 ? 'Great job, wizard!' : 'Good try, young wizard!';
   app.innerHTML = `
-    <div class="card pop" style="margin-top:24px">
-      <div style="font-size:6rem">🏅</div>
-      <h2 class="title-font" style="font-size:2.2rem;color:var(--gold);margin:6px 0">${msg}</h2>
-      <div class="stars" style="font-size:3rem">${starsHtml()}</div>
-      <p style="font-size:1.4rem">You cast <b>${success}</b> spells!</p>
-      <p class="ko">이제 Forbidden Room으로 이동하세요! ➜</p>
-      <div class="row" style="margin-top:14px">
-        <button class="btn-gold btn-big" id="again">🪄 Next Student</button>
+    <div class="pop" style="margin-top:18px">
+      <div class="parchment" style="max-width:640px;margin-top:24px">
+        <div style="font-size:5rem">🏅</div>
+        <h2 class="q-text">${msg}</h2>
+        <div class="stars" style="font-size:3rem">${starsHtml()}</div>
+        <p class="fell" style="font-size:1.6rem;margin:6px 0">You cast <b>${success}</b> spells!</p>
+        <p class="ko">이제 Forbidden Room으로 이동하세요! ➜</p>
+        <div class="seal">S</div>
       </div>
+      <button class="btn-magic" id="again" style="margin-top:36px">🪄 Next Student</button>
     </div>`;
-  Magic.sfx.magic(); Magic.sparkle(app.querySelector('.card'));
+  Magic.sfx.magic(); Magic.confetti(); Magic.sparkle(app.querySelector('.parchment'));
   Magic.speak(msg + ` You cast ${success} spells!`);
   document.getElementById('again').onclick = home;
 }
