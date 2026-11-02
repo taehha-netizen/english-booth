@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sorting Ceremony</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@600;800&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@600;800&family=IM+Fell+English:ital@0;1&family=Gowun+Dodum&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/common.css">
 <style>
   .crests-row { display: flex; gap: 18px; justify-content: center; margin: 18px 0 26px; }
@@ -15,15 +15,15 @@
   .house-btn { flex-direction: column; gap: 10px; background: transparent; border: none; padding: 8px 4px; position: relative; color: var(--text); }
   .house-btn .crest { transition: transform .2s, box-shadow .2s; }
   .house-btn:hover .crest { transform: translateY(-6px); }
-  .house-btn .hname { font-family: "Cinzel", serif; font-weight: 800; font-size: 1.3rem; color: #f6e7c1; }
-  .house-btn .trait { font-size: .9rem; color: #cbbd9c; }
+  .house-btn .hname { font-family: "Cinzel", serif; font-weight: 800; font-size: 1.5rem; text-shadow: 0 2px 6px #000; color: #f6e7c1; }
+  .house-btn .trait { font-size: 1rem; color: #f0e2c0; text-shadow: 0 2px 4px #000; }
   .house-btn.reco .crest { box-shadow: inset 0 0 0 3px #0005, 0 0 0 4px #fbe7a1, 0 0 46px var(--glow); }
   .house-btn .tag { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); z-index: 2; white-space: nowrap;
     font: 800 .8rem "Cinzel", serif; color: #2a1a04; padding: 4px 14px;
     background: linear-gradient(180deg, #fff1b5, #d9a93a); clip-path: polygon(0 0, 100% 0, 94% 50%, 100% 100%, 0 100%, 6% 50%); }
 
   /* 기숙사 깃발 */
-  .banner { position: relative; margin: 8px auto 0; width: min(480px, 92vw); padding: 34px 20px 80px;
+  .banner { position: relative; margin: 8px auto 0; width: min(480px, 92vw); padding: 26px 20px 64px;
     background:
       repeating-linear-gradient(90deg, #ffffff08 0 3px, transparent 3px 9px),
       linear-gradient(180deg, var(--c1), var(--c2));
@@ -31,9 +31,11 @@
     box-shadow: inset 0 0 0 8px var(--metal); }
   .banner-wrap { filter: drop-shadow(0 20px 30px #000c) drop-shadow(0 0 40px var(--glow)); }
   .rod { width: min(500px, 98vw); height: 16px; margin: 0 auto; border-radius: 8px; background: linear-gradient(180deg, #fff1b5, #b8862a 60%, #6e4f22); box-shadow: 0 4px 8px #000a; }
-  .house-name { font-family: "Cinzel Decorative", serif; font-weight: 900; font-size: 2.7rem; color: #fff; margin: 10px 0 4px; overflow-wrap: anywhere;
+  .house-name { font-family: "Cinzel Decorative", serif; font-weight: 900; font-size: 3rem; color: #fff; margin: 10px 0 4px; overflow-wrap: anywhere;
     text-shadow: 0 3px 0 #0007, 0 0 24px var(--glow); }
   .banner .crest { margin: 0 auto; }
+  .banner .crest.huge { width: 170px; } .banner .crest.huge .animal { font-size: 5.6rem; }
+  .banner p { text-shadow: 0 2px 4px #0009; }
   .banner p { color: #fffbe8; margin: 4px 0; }
 
   @media (max-width: 860px) {

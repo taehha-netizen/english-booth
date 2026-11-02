@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Spell Challenge</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@600;800&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@600;800&family=IM+Fell+English:ital@0;1&family=Gowun+Dodum&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/common.css">
 <style>
   /* 별 진행 표시 */
@@ -14,20 +14,20 @@
   .stars .off { opacity: .2; filter: grayscale(1); }
 
   /* 수정 구슬 */
-  .orb-wrap { position: relative; width: 300px; margin: 6px auto 0; }
-  .orb { width: 260px; height: 260px; margin: 0 auto; border-radius: 50%; display: grid; place-items: center; position: relative; z-index: 1;
+  .orb-wrap { position: relative; width: 300px; margin: 0 auto 10px; }
+  .orb { width: 250px; height: 250px; margin: 0 auto; border-radius: 50%; display: grid; place-items: center; position: relative; z-index: 1;
     background:
       radial-gradient(circle at 32% 26%, #ffffffaa 0 6%, transparent 18%),
       radial-gradient(circle at 50% 55%, #6d5bd0 0%, #2c1f6e 55%, #120b38 100%);
     box-shadow: 0 0 0 4px #ffffff22, 0 0 50px #8a7cff88, inset 0 -20px 40px #0008; }
-  .orb .e { font-size: 8rem; filter: drop-shadow(0 6px 10px #000a); }
+  .orb .e { font-size: 7.6rem; filter: drop-shadow(0 6px 10px #000a); }
   .orb.cast { animation: cast .9s ease-out; }
   @keyframes cast { 0% { box-shadow: 0 0 0 4px #fff4, 0 0 50px #8a7cff88; } 40% { box-shadow: 0 0 0 10px #fbe7a1, 0 0 120px #ffd25a; } 100% { box-shadow: 0 0 0 4px #ffffff22, 0 0 50px #8a7cff88; } }
-  .orb-stand { width: 190px; height: 46px; margin: -26px auto 0; border-radius: 8px 8px 30px 30px;
+  .orb-stand { width: 200px; height: 46px; margin: -26px auto 0; border-radius: 8px 8px 30px 30px;
     background: linear-gradient(180deg, #fff1b5, #b8862a 45%, #5a3d0c); box-shadow: 0 10px 20px #000a; }
 
-  .q-line { font-family: "IM Fell English", Georgia, serif; font-size: 2.2rem; margin: 14px 0 0; }
-  .word-box { min-height: 1.6em; font-family: "Cinzel", Georgia, serif; font-size: 2.6rem; font-weight: 800; letter-spacing: .14em; color: var(--gold-1); text-shadow: 0 0 18px #ffcc5a88; }
+  .q-line { font-family: "IM Fell English", Georgia, serif; font-size: 2.4rem; text-shadow: 0 2px 6px #000; margin: 6px 0 0; }
+  .word-box { min-height: 1.3em; font-family: "Cinzel", Georgia, serif; font-size: 3rem; font-weight: 800; letter-spacing: .14em; color: var(--gold-1); text-shadow: 0 0 18px #ffcc5a88; }
   .help-row { display: flex; gap: 12px; justify-content: center; }
 
   @media (max-width: 640px) {

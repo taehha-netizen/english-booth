@@ -295,3 +295,70 @@ body.dim .candles { opacity: .35; transition: opacity 1s; }
 
 /* 듣는 중인 마이크는 빨갛게 (금빛 마이크보다 우선) */
 .mic.listening { background: radial-gradient(circle at 35% 30%, #ffb3b3, #d23b3b 70%); }
+
+/* ================================================================
+ * 그림책 도서관 테마 + 큰 글씨·큰 그림 (참고 그림: 호그와트 도서관)
+ * html 글자 크기를 키워 rem 단위로 된 글씨가 모두 함께 커짐
+ * ================================================================ */
+html { font-size: 19px; }
+body {
+  font-size: 1.2rem;
+  font-family: "Gowun Dodum", "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  background:
+    linear-gradient(180deg, #2a1606bb 0%, #1e0f04d2 55%, #140a03e6 100%) fixed,
+    url("hogwarts-library.webp") center / cover no-repeat fixed;
+  background-color: #1e1206;
+}
+body::before { display: none; }                       /* 밤하늘 별 대신 그림 배경 */
+body::after { background: radial-gradient(ellipse at center, transparent 50%, #1a0c02d0 100%); }
+.ko { font-family: "Gowun Dodum", "Pretendard", "Malgun Gothic", sans-serif; font-size: .88em; }
+.level-grid .opt .ko { font-family: "Gowun Dodum", "Pretendard", "Malgun Gothic", sans-serif; font-size: .9rem; }
+
+.topbar { background: linear-gradient(180deg, #1a0d03f0, #1a0d03b0); border-bottom: 2px solid #d9a93a77; }
+.topbar h1 { font-size: 1.35rem; }
+.btn-small { font-size: .95rem; padding: 8px 14px; }
+.pill { font-size: 1.05rem; padding: 6px 18px; }
+
+/* 배경 그림 위 글씨가 잘 보이도록 그림자 강화 */
+.speech, .heard, .hint, main > .ko, .center > .ko, .pop > .ko { text-shadow: 0 2px 6px #000, 0 0 2px #000; }
+.title { filter: drop-shadow(0 3px 0 #3a2508) drop-shadow(0 0 3px #000) drop-shadow(0 0 22px #ffcc5a66); }
+
+/* 그림 크게 */
+.mic { width: 150px; height: 150px; font-size: 3.8rem; }
+.speak-btn { width: 62px; height: 62px; font-size: 1.5rem; }
+.hat-wrap svg { width: 270px; } .hat-wrap.small svg { width: 140px; } .hat-wrap.big svg { width: 330px; }
+.crest.mini { width: 88px; } .crest.mini .animal { font-size: 2.4rem; }
+.crest.huge { width: 230px; }
+.crest .animal { font-size: 4.6rem; }
+
+/* 보기 카드: 그림 속 태블릿처럼 파스텔 타일 */
+.opt { min-height: 240px; gap: 10px; font-size: 1.35rem; }
+.opt .medal { width: 136px; height: 136px; border-radius: 28px; font-size: 4.6rem;
+  background: var(--tile, #fff4c7); border: 5px solid #fffaf0; box-shadow: 0 5px 0 #c9a565, 0 10px 16px #0004; }
+.opt:nth-child(4n+1) .medal { --tile: #fff2c2; }
+.opt:nth-child(4n+2) .medal { --tile: #d9ecff; }
+.opt:nth-child(4n+3) .medal { --tile: #dff5d4; }
+.opt:nth-child(4n+4) .medal { --tile: #efe0ff; }
+.level-grid .opt { min-height: 260px; font-size: 1.6rem; }
+.level-grid { max-width: 820px; gap: 22px; }
+
+@media (max-width: 860px) {
+  html { font-size: 17px; }
+  .opt { min-height: 200px; } .opt .medal { width: 108px; height: 108px; font-size: 3.6rem; }
+}
+@media (max-width: 640px) {
+  html { font-size: 15px; }
+  .mic { width: 112px; height: 112px; font-size: 2.8rem; }
+  .hat-wrap svg { width: 180px; } .hat-wrap.big svg { width: 220px; } .hat-wrap.small svg { width: 110px; }
+  .opt .medal { width: 92px; height: 92px; font-size: 3rem; border-radius: 22px; }
+  .crest.huge { width: 160px; }
+}
+
+/* 선생님 메뉴 등 어두운 판도 따뜻한 나무색으로 */
+.card { background: linear-gradient(180deg, #3a220ef0, #22130af0); border: 2px solid #d9a93a66; }
+.stat { background: #00000040; }
+
+/* 기본 버튼도 나무색 + 금테 */
+button, .btn { background: linear-gradient(180deg, #4a2c12, #2a170a); }
+.topbar h1 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+@media (max-width: 640px) { .topbar h1 { font-size: 1rem; } }

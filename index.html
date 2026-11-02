@@ -5,11 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Welcome to Hogwarts</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@600;800&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@600;800&family=IM+Fell+English:ital@0;1&family=Gowun+Dodum&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/common.css">
 <style>
   .hero { text-align: center; padding: 18px 0 4px; }
   .hero .title { font-size: 3.4rem; }
+  /* 금테 액자에 넣은 대표 그림 */
+  .painting { width: min(760px, 100%); margin: 18px auto 6px; padding: 12px; border-radius: 10px;
+    background: linear-gradient(135deg, #fff1b5, #b8862a 30%, #f5d77a 55%, #8a6416 85%);
+    box-shadow: 0 0 0 3px #5a3d0c, 0 20px 50px #000c, 0 0 60px #ffcc5a44; }
+  .painting img { display: block; width: 100%; height: auto; border-radius: 4px; box-shadow: inset 0 0 0 2px #0006; }
 
   /* 학생 동선 */
   .flow { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; align-items: center; margin: 12px 0 30px; font: 600 .85rem "Cinzel", Georgia, serif; }
@@ -54,10 +59,10 @@
 <body>
 <main class="wrap">
   <section class="hero">
-    <div id="heroHat"></div>
     <h1 class="title">Welcome to Hogwarts</h1>
     <p class="speech" style="font-size:1.5rem;margin:4px 0">Sorting Ceremony + Hogwarts Mission</p>
     <p class="ko">마법학교 영어 체험 부스</p>
+    <div class="painting"><img src="assets/hogwarts-library.webp" alt="호그와트 도서관에서 마법 체험을 하는 학생들"></div>
   </section>
 
   <div class="flow">
@@ -127,7 +132,6 @@
 <script src="assets/common.js"></script>
 <script>
 const HOUSE = Object.entries(Magic.HOUSES).map(([k, h]) => [k, h.name, h.e]);
-document.getElementById('heroHat').innerHTML = Magic.hatSVG('small');
 
 function renderStats() {
   const s = Magic.readStats();

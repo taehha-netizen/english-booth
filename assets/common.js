@@ -251,7 +251,7 @@
     if (document.getElementById('candles')) return;
     const box = document.createElement('div');
     box.className = 'candles'; box.id = 'candles'; box.setAttribute('aria-hidden', 'true');
-    for (let i = 0; i < 14; i++) {
+    for (let i = 0; i < 8; i++) {
       const c = document.createElement('div');
       c.className = 'candle';
       const side = i % 2 ? 78 + Math.random() * 19 : 2 + Math.random() * 19;
