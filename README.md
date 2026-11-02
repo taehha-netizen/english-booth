@@ -15,6 +15,11 @@
 
 첫 화면 `index.html`의 **선생님 메뉴**에서 참여 현황(기숙사별 인원 등), 읽어주기 속도, 소리·마이크 점검을 할 수 있습니다.
 
+### 접속 주소
+- **GitHub Pages (부스 운영용, 음성 인식 작동)**: https://taehha-netizen.github.io/english-booth/
+  - 처음 한 번만 설정: 저장소 Settings → Pages → Source: *Deploy from a branch* → 브랜치 `claude/optimistic-hypatia-4bsbqx`, 폴더 `/ (root)` → Save
+- **claude.ai 미리보기 (공유용, 마이크 미작동)**: https://claude.ai/artifact/KLkX4SKcbesoQgatHV1xek
+
 ### 사용 방법
 1. 태블릿에서 **크롬**으로 접속 (음성 인식은 크롬 + 인터넷 연결 필요)
 2. 처음 🎤를 누르면 마이크 권한 **허용**
