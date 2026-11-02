@@ -9,13 +9,38 @@
 <link rel="stylesheet" href="assets/common.css">
 <style>
   /* 주문서(양피지)에 적힌 지시문 */
-  .cmd { font-family: "IM Fell English", Georgia, serif; font-size: 3.7rem; line-height: 1.25; margin: 0; min-height: 2.6em; display: flex; align-items: center; justify-content: center; color: var(--ink); }
+  .cmd { font-family: "IM Fell English", Georgia, serif; font-size: 3.2rem; line-height: 1.2; margin: 0; min-height: 2.5em; display: flex; align-items: center; justify-content: center; color: var(--ink); }
   .cmd.blur { filter: blur(14px); }
   .c-red { color: #b3161b; } .c-blue { color: #1f4fa8; } .c-yellow { color: #b8860b; } .c-green { color: #1d7a43; }
   .cmd [class^="c-"] { font-weight: 700; }
   .controls { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 34px; }
   .label-check { display: inline-flex; gap: 8px; align-items: center; margin-top: 18px; color: var(--ink-soft); font-size: .95rem; }
-  @media (max-width: 640px) { .cmd { font-size: 1.9rem; } }
+
+  /* 지시문 + 정답 그림 나란히 */
+  .stage { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 26px; align-items: stretch; margin-top: 26px; }
+  .stage .parchment { margin: 0; display: flex; flex-direction: column; justify-content: center; }
+
+  /* 정답 그림: 금테 액자 안의 나무 탁자 */
+  .answer { position: relative; border-radius: 14px; padding: 10px; min-height: 300px;
+    background: linear-gradient(135deg, #fff1b5, #b8862a 30%, #f5d77a 55%, #8a6416 85%);
+    box-shadow: 0 0 0 3px #5a3d0c, 0 18px 40px #000b; }
+  .answer-in { position: relative; height: 100%; min-height: 280px; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;
+    background: radial-gradient(ellipse at 50% 0%, #fff6dc 0%, #efdcae 55%, #d9bd84 100%); }
+  .answer-label { font: 800 .9rem "Cinzel", Georgia, serif; color: #6b4a26; letter-spacing: .08em; padding: 10px 0 0; }
+  .answer svg.stack { display: block; width: 100%; height: 290px; margin-top: auto; }
+  .hand { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 58px; padding: 6px 10px 8px;
+    font: 700 .95rem "Gowun Dodum", sans-serif; color: #fbe7a1; background: #4a2c12; }
+  .hand svg { width: 34px; height: 40px; }
+  .cover { position: absolute; inset: 10px; border-radius: 8px; display: grid; place-items: center; z-index: 3;
+    background: radial-gradient(circle at 50% 40%, #4b3a8a, #1d1446 75%); color: #fbe7a1; transition: opacity .5s, transform .5s; }
+  .cover.gone { opacity: 0; transform: scale(1.06); pointer-events: none; }
+  .cover .q { font-size: 5rem; filter: drop-shadow(0 0 20px #b9a6ff); }
+  .cover button { margin-top: 8px; }
+  .cup-new { animation: drop .6s cubic-bezier(.3,1.5,.5,1) both; }
+  .cup-new .glow { opacity: .5; }
+  @keyframes drop { from { transform: translateY(-40px); opacity: 0; } to { transform: none; opacity: 1; } }
+  @media (max-width: 900px) { .stage { grid-template-columns: 1fr; } }
+  @media (max-width: 640px) { .cmd { font-size: 1.9rem; } .answer svg.stack { height: 200px; } }
 </style>
 </head>
 <body>
@@ -31,22 +56,108 @@
 
 <script src="assets/common.js"></script>
 <script>
-// 컵스택 지시문 (협의안 Final Spell 내용 기반). 한 판 = 순서대로 진행
+// 컵스택 지시문 + 각 지시를 따랐을 때의 컵 모습
+// hand: 손에 든 컵, cups: 탁자 위 컵 {c: 색, x: 가로 칸(0.5 단위 가능), y: 층(0 = 맨 아래)}
+const R = 'red', B = 'blue', Y = 'yellow', G = 'green';
+const line = (y, x0, ...cs) => cs.map((c, k) => ({ c, x: x0 + k, y }));
 const SETS = {
   beginner: [
-    ['Take the red cup.', 'Put the cup here.', 'Take the blue cup.', 'Put the red cup on the blue cup.', 'Put the yellow cup on top.', 'Build a tower!'],
-    ['Take the green cup.', 'Put the cup here.', 'Take the yellow cup.', 'Put the yellow cup on the green cup.', 'Move the green cup.', 'Make a 3-layer tower!'],
-    ['Take the blue cup.', 'Put the cup here.', 'Take the red cup.', 'Put the red cup next to the blue cup.', 'Put the green cup on top.', 'Build a tower!'],
+    [ // 3층 탑
+      { t: 'Take the blue cup.', hand: [B], cups: [] },
+      { t: 'Put the blue cup on the table.', hand: [], cups: line(0, 0, B) },
+      { t: 'Take the red cup.', hand: [R], cups: line(0, 0, B) },
+      { t: 'Put the red cup on the blue cup.', hand: [], cups: [...line(0, 0, B), ...line(1, 0, R)] },
+      { t: 'Put the yellow cup on top.', hand: [], cups: [...line(0, 0, B), ...line(1, 0, R), ...line(2, 0, Y)] },
+      { t: 'You made a 3-layer tower!', hand: [], cups: [...line(0, 0, B), ...line(1, 0, R), ...line(2, 0, Y)] },
+    ],
+    [ // 작은 피라미드
+      { t: 'Take the green cup.', hand: [G], cups: [] },
+      { t: 'Put the green cup on the table.', hand: [], cups: line(0, 0, G) },
+      { t: 'Take the yellow cup.', hand: [Y], cups: line(0, 0, G) },
+      { t: 'Put the yellow cup next to the green cup.', hand: [], cups: line(0, 0, G, Y) },
+      { t: 'Put the red cup on the green cup and the yellow cup.', hand: [], cups: [...line(0, 0, G, Y), ...line(1, .5, R)] },
+      { t: 'You made a small pyramid!', hand: [], cups: [...line(0, 0, G, Y), ...line(1, .5, R)] },
+    ],
+    [ // 6개 피라미드
+      { t: 'Take the red cup and the blue cup.', hand: [R, B], cups: [] },
+      { t: 'Put the red cup and the blue cup in a line.', hand: [], cups: line(0, 0, R, B) },
+      { t: 'Put the green cup next to the blue cup.', hand: [], cups: line(0, 0, R, B, G) },
+      { t: 'Put the yellow cup on the red cup and the blue cup.', hand: [], cups: [...line(0, 0, R, B, G), ...line(1, .5, Y)] },
+      { t: 'Put the red cup on the blue cup and the green cup.', hand: [], cups: [...line(0, 0, R, B, G), ...line(1, .5, Y, R)] },
+      { t: 'Put the blue cup on the very top!', hand: [], cups: [...line(0, 0, R, B, G), ...line(1, .5, Y, R), ...line(2, 1, B)] },
+    ],
   ],
   advanced: [
-    ['Take 2 red cups and 3 blue cups.', 'Put the 3 blue cups in a line.', 'Put the 2 red cups on top.', 'Put 1 yellow cup on the top.', 'Make 3 layers!'],
-    ['Take 3 green cups and 2 yellow cups.', 'Put the green cups in a line.', 'Put the yellow cups on the green cups.', 'Put 1 red cup on top.', 'Make 3 layers!'],
-    ['Take 3 yellow cups.', 'Take 2 blue cups and 1 red cup.', 'Put the yellow cups in a line.', 'Put the blue cups on top.', 'Put the red cup on the very top.', 'Make a pyramid!'],
+    [
+      { t: 'Take 3 blue cups and 2 red cups.', hand: [B, B, B, R, R], cups: [] },
+      { t: 'Put the 3 blue cups in a line.', hand: [R, R], cups: line(0, 0, B, B, B) },
+      { t: 'Put the 2 red cups on the blue cups.', hand: [], cups: [...line(0, 0, B, B, B), ...line(1, .5, R, R)] },
+      { t: 'Put 1 yellow cup on the very top.', hand: [], cups: [...line(0, 0, B, B, B), ...line(1, .5, R, R), ...line(2, 1, Y)] },
+      { t: 'You made 3 layers!', hand: [], cups: [...line(0, 0, B, B, B), ...line(1, .5, R, R), ...line(2, 1, Y)] },
+    ],
+    [
+      { t: 'Take 3 green cups and 2 yellow cups.', hand: [G, G, G, Y, Y], cups: [] },
+      { t: 'Put the green cups in a line.', hand: [Y, Y], cups: line(0, 0, G, G, G) },
+      { t: 'Put the yellow cups on the green cups.', hand: [], cups: [...line(0, 0, G, G, G), ...line(1, .5, Y, Y)] },
+      { t: 'Put 1 red cup on top.', hand: [], cups: [...line(0, 0, G, G, G), ...line(1, .5, Y, Y), ...line(2, 1, R)] },
+      { t: 'You made 3 layers!', hand: [], cups: [...line(0, 0, G, G, G), ...line(1, .5, Y, Y), ...line(2, 1, R)] },
+    ],
+    [
+      { t: 'Take 4 yellow cups.', hand: [Y, Y, Y, Y], cups: [] },
+      { t: 'Put the yellow cups in a line.', hand: [], cups: line(0, 0, Y, Y, Y, Y) },
+      { t: 'Put 3 blue cups on the yellow cups.', hand: [], cups: [...line(0, 0, Y, Y, Y, Y), ...line(1, .5, B, B, B)] },
+      { t: 'Put 2 red cups on the blue cups.', hand: [], cups: [...line(0, 0, Y, Y, Y, Y), ...line(1, .5, B, B, B), ...line(2, 1, R, R)] },
+      { t: 'Put the green cup on the very top.', hand: [], cups: [...line(0, 0, Y, Y, Y, Y), ...line(1, .5, B, B, B), ...line(2, 1, R, R), ...line(3, 1.5, G)] },
+      { t: 'You made a 4-layer pyramid!', hand: [], cups: [...line(0, 0, Y, Y, Y, Y), ...line(1, .5, B, B, B), ...line(2, 1, R, R), ...line(3, 1.5, G)] },
+    ],
   ],
 };
 
+// ---------- 컵 그림 (SVG) ----------
+const CUP = { red: ['#ff6b5e', '#c8261c', '#8e140d'], blue: ['#6ea8ff', '#2a62d4', '#173d8f'],
+              yellow: ['#ffe680', '#f0b818', '#a87a00'], green: ['#7ee08c', '#2a9a45', '#16602a'] };
+const W = 80, H = 92, GAP = 6, TOPW = 56;   // 컵 크기(뒤집어 놓은 스피드스택 컵)
+function cupGradients() {
+  return Object.entries(CUP).map(([c, [hi, mid, lo]]) => `
+    <linearGradient id="g-${c}" x1="0" x2="1"><stop offset="0" stop-color="${lo}"/><stop offset=".35" stop-color="${hi}"/><stop offset=".6" stop-color="${mid}"/><stop offset="1" stop-color="${lo}"/></linearGradient>`).join('');
+}
+function cupShape(c, x, y, extra = '') {
+  const inset = (W - TOPW) / 2;
+  return `<g transform="translate(${x} ${y})"><g ${extra}>
+    <ellipse class="glow" cx="${W / 2}" cy="${H / 2}" rx="${W * .62}" ry="${H * .6}" fill="#fff6a8" opacity="0"/>
+    <path d="M${inset} 0 H${W - inset} L${W} ${H} H0 Z" fill="url(#g-${c})" stroke="${CUP[c][2]}" stroke-width="2"/>
+    <rect x="-2" y="${H - 12}" width="${W + 4}" height="12" rx="4" fill="${CUP[c][2]}"/>
+    <rect x="${inset + 8}" y="6" width="7" height="${H - 24}" rx="3.5" fill="#fff" opacity=".35"/>
+  </g></g>`;
+}
+function stackSVG(state, prev, bounds) {
+  const key = k => `${k.c}@${k.x},${k.y}`;
+  const before = new Set((prev ? prev.cups : []).map(key));
+  const vw = bounds.cols * (W + GAP) + 40, vh = bounds.rows * H + 48;
+  const table = `<rect x="-2000" y="${vh - 26}" width="${vw + 4000}" height="60" fill="#7a4a22"/><rect x="-2000" y="${vh - 26}" width="${vw + 4000}" height="5" fill="#a8703a"/>`;
+  const cups = state.cups.slice().sort((a, b) => a.y - b.y);
+  const body = cups.map(k => {
+    const px = 20 + k.x * (W + GAP), py = vh - 24 - (k.y + 1) * H;
+    const isNew = !before.has(key(k));
+    return cupShape(k.c, px, py, isNew ? `class="cup-new" style="animation-delay:${k.y * .12}s"` : '');
+  }).join('');
+  const empty = state.cups.length ? '' : `<text x="${vw / 2}" y="${vh / 2}" text-anchor="middle" font-family="Gowun Dodum, sans-serif" font-size="22" fill="#8a6a40">(탁자는 아직 비어 있어요)</text>`;
+  return `<svg class="stack" viewBox="0 0 ${vw} ${vh}" preserveAspectRatio="xMidYMax meet" role="img" aria-label="정답 컵 모양">
+    <defs>${cupGradients()}</defs>${table}${empty}${body}</svg>`;
+}
+function handHTML(state) {
+  if (!state.hand.length) return '<div class="hand">✋ In your hand: —</div>';
+  const small = c => `<svg viewBox="-4 -4 ${W + 8} ${H + 8}"><defs>${cupGradients()}</defs>${cupShape(c, 0, 0)}</svg>`;
+  return `<div class="hand">✋ In your hand: ${state.hand.map(small).join('')}</div>`;
+}
+function boundsOf(set) {
+  let cols = 1, rows = 1;
+  set.forEach(st => st.cups.forEach(k => { cols = Math.max(cols, k.x + 1); rows = Math.max(rows, k.y + 1); }));
+  return { cols: Math.max(cols, 3), rows: Math.max(rows, 3) };
+}
+
 const app = document.getElementById('app');
-let list, i, hideText = false;
+let list, i, bounds, hideText = false, autoShow = false;
 
 function colorize(t) {
   return t.replace(/\b(red|blue|yellow|green)\b/gi, m => `<span class="c-${m.toLowerCase()}">${m}</span>`);
@@ -64,38 +175,67 @@ function home() {
           <button class="opt level" data-l="beginner"><span class="medal">🥤</span>Beginner<span class="ko">기초</span></button>
           <button class="opt level" data-l="advanced"><span class="medal">🏰</span>Advanced<span class="ko">도전</span></button>
         </div>
-        <label class="label-check"><input type="checkbox" id="hide"> 글자 가리기 (듣기만으로 도전)</label>
+        <div class="row" style="gap:22px">
+          <label class="label-check"><input type="checkbox" id="hide"> 글자 가리기 (듣기만으로 도전)</label>
+          <label class="label-check"><input type="checkbox" id="auto"> 정답 그림 바로 보기</label>
+        </div>
         <div class="seal">F</div>
       </div>
     </div>`;
   document.getElementById('hide').checked = hideText;
   document.getElementById('hide').onchange = e => hideText = e.target.checked;
+  document.getElementById('auto').checked = autoShow;
+  document.getElementById('auto').onchange = e => autoShow = e.target.checked;
   app.querySelectorAll('.level').forEach(b => b.onclick = () => {
     const sets = SETS[b.dataset.l];
-    list = sets[Math.floor(Math.random() * sets.length)]; i = 0;
+    list = sets[Math.floor(Math.random() * sets.length)]; i = 0; bounds = boundsOf(list);
     Magic.sfx.magic(); show();
   });
 }
 
 function show() {
-  const t = list[i];
+  const st = list[i], t = st.t;
   app.innerHTML = `
     <div class="progress" style="margin-top:14px">${list.map((_, k) => `<span class="${k <= i ? 'on' : ''}"></span>`).join('')}</div>
     <div class="pill">Spell ${i + 1} / ${list.length}</div>
-    <div class="parchment pop" style="margin-top:30px">
-      <div class="cmd ${hideText ? 'blur' : ''}" id="cmd"><span>${colorize(t)}</span></div>
-      <div class="seal">F</div>
+    <div class="stage">
+      <div class="parchment pop">
+        <div class="cmd ${hideText ? 'blur' : ''}" id="cmd"><span>${colorize(t)}</span></div>
+        <div class="seal">F</div>
+      </div>
+      <div class="answer pop">
+        <div class="answer-in">
+          <div class="answer-label">✨ THE ANSWER · 정답 모습</div>
+          ${stackSVG(st, list[i - 1], bounds)}
+          ${handHTML(st)}
+        </div>
+        <div class="cover ${autoShow ? 'gone' : ''}" id="cover">
+          <div>
+            <div class="q">🔮</div>
+            <div class="ko" style="color:#e9dcff">컵을 다 쌓았으면 정답을 확인해요!</div>
+            <button class="btn-magic" id="showAns">Show the answer</button>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="controls">
       <button class="btn-big" id="again">🔊 Again</button>
       ${hideText ? '<button class="btn-big" id="reveal">👀 Show</button>' : ''}
       <button class="btn-magic" id="next">${i < list.length - 1 ? 'Next ➜' : '✔ Finish'}</button>
     </div>
-    <p class="ko" style="margin-top:16px">선생님: 학생이 지시대로 했으면 Next를 눌러 주세요.</p>`;
+    <p class="ko" style="margin-top:16px">선생님: 학생이 쌓은 뒤 <b>Show the answer</b>로 맞는지 확인하고 Next를 눌러 주세요.</p>`;
   Magic.speak(t, { rate: 0.8 });
   document.getElementById('again').onclick = () => Magic.speak(t, { rate: 0.7 });
   const rv = document.getElementById('reveal');
   if (rv) rv.onclick = () => document.getElementById('cmd').classList.remove('blur');
+  document.getElementById('showAns').onclick = () => {
+    const cover = document.getElementById('cover');
+    cover.classList.add('gone');
+    // 새로 놓인 컵 애니메이션을 다시 재생
+    app.querySelectorAll('.cup-new').forEach(g => { g.style.animation = 'none'; void g.getBBox(); g.style.animation = ''; });
+    Magic.sfx.magic(); Magic.sparkle(app.querySelector('.answer'));
+    Magic.speak('Is your tower the same?', { rate: 0.85 });
+  };
   document.getElementById('next').onclick = () => {
     Magic.sfx.ok();
     i++;
