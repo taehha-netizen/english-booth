@@ -14,14 +14,14 @@
       voices.find(v => /^en/i.test(v.lang)) || null;
   }
   if ('speechSynthesis' in window) {
-    pickVoice();
+    try { pickVoice(); } catch (e) {}
     speechSynthesis.onvoiceschanged = pickVoice;
   }
 
   function speak(text, opts = {}) {
     return new Promise(resolve => {
-      if (!('speechSynthesis' in window)) return resolve();
-      speechSynthesis.cancel();
+      if (!('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined') return resolve();
+      try { speechSynthesis.cancel(); } catch (e) {}
       const u = new SpeechSynthesisUtterance(text);
       u.lang = opts.lang || 'en-US';
       u.rate = opts.rate || Magic.settings.rate;
@@ -30,7 +30,7 @@
       // 일부 기기는 읽기가 끝나도 onend가 오지 않아 화면이 멈출 수 있으므로 안전 타이머를 둠
       const guard = setTimeout(resolve, 1500 + text.length * 110 / u.rate);
       u.onend = u.onerror = () => { clearTimeout(guard); resolve(); };
-      speechSynthesis.speak(u);
+      try { speechSynthesis.speak(u); } catch (e) { clearTimeout(guard); resolve(); }
     });
   }
 
@@ -170,8 +170,10 @@
   }
 
   function toggleFullscreen() {
-    if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
-    else document.exitFullscreen?.();
+    // 오래된 브라우저(스탠바이미 등)도 이해할 수 있게 ?. 문법 대신 직접 확인
+    const el = document.documentElement;
+    if (!document.fullscreenElement) { if (el.requestFullscreen) el.requestFullscreen(); }
+    else if (document.exitFullscreen) document.exitFullscreen();
   }
 
   // 마이크 미지원 브라우저 안내

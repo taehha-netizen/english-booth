@@ -30,7 +30,7 @@ body {
 /* 반짝이는 별 (마법 천장) */
 body::before {
   content: "";
-  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  position: fixed; top: 0; right: 0; bottom: 0; left: 0; pointer-events: none; z-index: 0;
   background-image:
     radial-gradient(2px 2px at 10% 20%, #fff8, transparent),
     radial-gradient(2px 2px at 80% 10%, #fff6, transparent),
@@ -152,7 +152,7 @@ body {
 html { overflow-x: hidden; }
 /* 가장자리 어둡게 */
 body::after {
-  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  content: ""; position: fixed; top: 0; right: 0; bottom: 0; left: 0; pointer-events: none; z-index: 0;
   background: radial-gradient(ellipse at center, transparent 55%, #000a 100%);
 }
 .fell { font-family: "IM Fell English", Georgia, "Noto Serif KR", serif; }
@@ -165,7 +165,7 @@ body::after {
 main.wrap { position: relative; z-index: 1; }
 
 /* ===== 떠다니는 촛불 ===== */
-.candles { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.candles { position: fixed; top: 0; right: 0; bottom: 0; left: 0; pointer-events: none; z-index: 0; overflow: hidden; }
 .candle { position: absolute; width: 14px; height: 52px; border-radius: 3px 3px 2px 2px;
   background: linear-gradient(90deg, #d8cbb0, #fffaf0 40%, #e6dcc4 70%, #b9ab8e);
   animation: float var(--d, 6s) ease-in-out infinite alternate; opacity: .9; }
@@ -362,3 +362,18 @@ body::after { background: radial-gradient(ellipse at center, transparent 50%, #1
 button, .btn { background: linear-gradient(180deg, #4a2c12, #2a170a); }
 .topbar h1 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 @media (max-width: 640px) { .topbar h1 { font-size: 1rem; } }
+
+/* ================================================================
+ * 오래된 브라우저 대비 (LG 스탠바이미 등 크롬 79 기반 webOS 브라우저)
+ * aspect-ratio 를 모르는 브라우저 = flex gap 도 모르는 브라우저로 보고 함께 보완
+ * ================================================================ */
+@supports not (aspect-ratio: 1) {
+  .crest { height: 250px; }
+  .crest.mini { height: 105px; }
+  .crest.huge { height: 274px; }
+  .banner .crest.huge { height: 202px; }
+  .row > *, .listen-row > *, .controls > *, .help-row > *, .clue-tools > *,
+  .topbar .tools > *, .flow > *, .progress > *, .crests-row > *, .settings > *, .hand > * { margin: 6px; }
+  .letter > * + * { margin-left: 18px; }
+  .q-head > * + * { margin-left: 18px; }
+}

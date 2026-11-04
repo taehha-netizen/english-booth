@@ -45,7 +45,7 @@
   .pair { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 6rem; margin: 6px 0; filter: drop-shadow(0 8px 10px #000a); }
   .pair .arrow { font-size: 2.4rem; }
 
-  .alarm { position: fixed; inset: 0; background: #ff000044; pointer-events: none; animation: flash .3s 3; z-index: 50; }
+  .alarm { position: fixed; top: 0; right: 0; bottom: 0; left: 0; background: #ff000044; pointer-events: none; animation: flash .3s 3; z-index: 50; }
   @keyframes flash { 50% { background: transparent; } }
   @media (max-width: 760px) {
     .room.n4, .room.n6 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
