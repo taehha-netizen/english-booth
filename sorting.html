@@ -155,7 +155,7 @@ function askQuestion() {
       else { Magic.sfx.bad(); Magic.shake(app.querySelector('.options')); }
     } catch (e) {
       mic.classList.remove('listening');
-      heard.textContent = '마이크를 사용할 수 없어요. 그림을 눌러 주세요.';
+      heard.innerHTML = Magic.micErrorText(e).replace('✔ 통과로 진행해', '그림을 눌러');
     }
   };
 }
@@ -252,7 +252,7 @@ function yourChoice() {
       heard.innerHTML = said.length ? `I heard: <b>${said[0]}</b>` : '잘 안 들렸어요. 다시 말해 볼까요?';
       const h = Object.keys(SAY).find(k => Magic.matchWord(said, SAY[k]));
       if (h) welcome(h); else Magic.sfx.bad();
-    } catch (e) { mic.classList.remove('listening'); heard.textContent = '기숙사를 눌러 주세요.'; }
+    } catch (e) { mic.classList.remove('listening'); heard.innerHTML = Magic.micErrorText(e).replace('✔ 통과로 진행해', '기숙사를 눌러'); }
   };
 }
 

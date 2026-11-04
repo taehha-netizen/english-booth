@@ -163,7 +163,7 @@ document.getElementById('micTest').onclick = async () => {
   try {
     const said = await Magic.listen();
     out.textContent = said.length ? `✅ 인식됨: "${said[0]}"` : '⚠️ 소리가 들리지 않았어요';
-  } catch (e) { out.textContent = '❌ 오류: ' + e.message + ' (마이크 권한 / https 주소 확인)'; }
+  } catch (e) { out.innerHTML = '❌ ' + Magic.micErrorText(e); }
 };
 document.getElementById('reset').onclick = () => {
   if (confirm('참여 통계를 모두 지울까요?')) { Magic.resetStats(); renderStats(); }

@@ -177,12 +177,33 @@
   }
 
   // 마이크 미지원 브라우저 안내
+  // 다른 사이트 안에 끼워진 화면인지 (예: claude.ai 공유 링크) → 이때는 브라우저가 마이크를 막음
+  let embedded = false;
+  try { embedded = window.self !== window.top; } catch (e) { embedded = true; }
+
   function micNotice(container) {
-    if (SR) return;
+    let msg = '';
+    if (!SR) msg = '🎤 이 브라우저는 음성 인식을 지원하지 않아요. 휴대폰·태블릿의 <b>크롬(Chrome)</b>으로 열면 마이크가 작동합니다. 지금은 선생님이 <b>✔ 통과</b> 버튼으로 진행해 주세요.';
+    else if (embedded) msg = '🎤 공유 링크(claude.ai) 안에서는 마이크가 막혀 있어요. 마이크를 쓰려면 <b>taehha-netizen.github.io/english-booth</b> 주소를 크롬으로 직접 열어 주세요.';
+    if (!msg) return;
     const d = document.createElement('div');
     d.className = 'notice';
-    d.innerHTML = '🎤 이 브라우저는 음성 인식을 지원하지 않아요. <b>크롬(Chrome)</b>으로 열면 마이크가 작동합니다. 지금은 선생님이 <b>✔ 통과</b> 버튼으로 진행해 주세요.';
+    d.innerHTML = msg;
     (container || document.body).prepend(d);
+  }
+
+  // 음성 인식 오류 코드 → 선생님이 바로 조치할 수 있는 안내
+  function micErrorText(err) {
+    const code = (err && err.message) || String(err || '');
+    const tip = {
+      'not-allowed': '마이크 권한이 막혀 있어요. 주소창 왼쪽 자물쇠 → 마이크 <b>허용</b> 후 새로고침해 주세요.' + (embedded ? ' (공유 링크 안에서는 항상 막혀요. github.io 주소로 여세요.)' : ''),
+      'service-not-allowed': '이 브라우저에서는 음성 인식 서비스를 쓸 수 없어요. 휴대폰·태블릿의 <b>크롬</b>으로 열어 주세요.',
+      'audio-capture': '이 기기에 <b>마이크가 없거나</b> 연결되지 않았어요. 마이크(또는 카메라 마이크)를 연결하거나 다른 기기를 써 주세요.',
+      'network': '음성 인식 서버에 연결하지 못했어요. <b>인터넷 연결</b>을 확인해 주세요. 인터넷이 되는데도 계속되면 이 브라우저가 구글 음성 인식을 지원하지 않는 것이니(스탠바이미·TV 등) <b>크롬</b>을 써 주세요.',
+      'language-not-supported': '이 브라우저는 영어 음성 인식을 지원하지 않아요. <b>크롬</b>으로 열어 주세요.',
+      'unsupported': '이 브라우저는 음성 인식을 지원하지 않아요. <b>크롬</b>으로 열어 주세요.',
+    }[code] || '알 수 없는 오류예요.';
+    return `🎤 ${tip} <span class="ko">(오류 코드: ${code || '없음'}) · 지금은 ✔ 통과로 진행해 주세요.</span>`;
   }
 
 
@@ -273,7 +294,7 @@
     normalize, words, matchWord, scoreSentence,
     readStats, inc, resetStats,
     settings, saveSettings,
-    sparkle, shake, pop, sfx, shuffle, toggleFullscreen, micNotice,
+    sparkle, shake, pop, sfx, shuffle, toggleFullscreen, micNotice, micErrorText,
     HOUSES, hatSVG, crest, hatSay, confetti,
   };
 })();

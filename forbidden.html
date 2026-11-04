@@ -270,7 +270,7 @@ function sayStep() {
       }
     } catch (e) {
       mic.classList.remove('listening'); busy = false;
-      heard.textContent = '마이크 오류: 선생님이 ✔ 통과로 진행해 주세요.';
+      heard.innerHTML = Magic.micErrorText(e);
     }
   };
 }
